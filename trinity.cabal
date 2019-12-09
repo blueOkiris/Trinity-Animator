@@ -1,0 +1,54 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: f465aba27516c1468ca5bd075a0c5548bf5eaabc86e12d0177781f5f30d6598c
+
+name:           trinity
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/githubuser/trinity#readme>
+homepage:       https://github.com/blueOkiris/trinity#readme
+bug-reports:    https://github.com/blueOkiris/trinity/issues
+author:         Dylan Turner
+maintainer:     dylantdmt@gmail.com
+copyright:      2019 Dylan Turner
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/blueOkiris/trinity
+
+library
+  exposed-modules:
+      GUI
+      State
+  other-modules:
+      Paths_trinity
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5
+    , gloss
+    , gloss-juicy
+  default-language: Haskell2010
+
+executable trinity
+  main-is: Main.hs
+  other-modules:
+      Paths_trinity
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , gloss
+    , gloss-juicy
+    , trinity
+  default-language: Haskell2010
