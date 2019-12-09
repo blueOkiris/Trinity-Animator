@@ -46,4 +46,4 @@ or on Windows
 
 or on Linux
 
-```./run/sh```
+```./run.sh```
