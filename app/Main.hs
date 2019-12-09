@@ -4,12 +4,13 @@ import Graphics.Gloss   ( Display(..)
                         , Picture(..), pictures, translate, circleSolid, rectangleSolid
                         , color, white, black, red, blue, green, yellow, magenta )
 import Graphics.Gloss.Data.ViewPort
-import Graphics.Gloss.Interface.Pure.Game(play, Event(..), SpecialKey(..), KeyState(..), Key(..))
+import Graphics.Gloss.Interface.Pure.Game(play)
 
 import State(AppState(..), AppWindow(..))
 import GUI  ( Element(..), Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch)
 import Init(startState)
 import DrawElement
+import Event(handler)
 
 -- Draw GUI elements in a list of elements
 drawElements :: AppState -> Picture
@@ -28,31 +29,6 @@ render state =
     where
         winWidth = fromIntegral (width $ window state)
         winHeight = fromIntegral (height $ window state)
-
--- Handle events for things like keys and mouse clicks
-handler :: Event -> AppState -> AppState
--- Key down event handler
-handler (EventKey key Down _ _) state =
-    state
--- Key up event handler
-handler (EventKey key Up _ _) state =
-    state
--- Handle resize -> Make it so (0, 0) is always the top left
-handler (EventResize newSize) state =
-    state   { window = adjustedWindow }
-            --, elements = adjustedElements }
-    where
-        (newWidth, newHeight) = newSize
-
-        adjustedWindow = (window state) { width =   newWidth
-                                        , height =  newHeight }
-        --splitElements = splitAt 1 (elements state)
-        --newWindowElement = ((fst splitElements) !! 0)   { position =    (newWidth `div` 2, newHeight `div` 2)
-        --                                                , size =        (newWidth, newHeight) }
-        --adjustedElements = newWindowElement : (snd splitElements)
--- Handle anything else
-handler _ state =
-    state
 
 -- Update everything based on new state
 update :: Float -> AppState -> AppState

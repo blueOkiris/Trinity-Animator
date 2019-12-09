@@ -13,46 +13,11 @@ startState =
                                         , width =   winWidth
                                         , height =  winHeight }
                 , elements =    [ windowContainer
-                                , Element   { borderWidth =     3
-                                            , borderColor =     panelBorderColor
-                                            , backColor =       panelBGColor
-                                            , backImage =       Blank
-                                            , horAlignment =    alignLeft
-                                            , vertAlignment =   alignStretch
-                                            , offset =          ((baseMargin, baseMargin + 32 + baseMargin), (256, baseMargin))
-                                            , parent =          windowContainer }
-                                , Element   { borderWidth =     3
-                                            , borderColor =     panelBorderColor
-                                            , backColor =       panelBGColor
-                                            , backImage =       Blank
-                                            , horAlignment =    alignRight
-                                            , vertAlignment =   alignStretch
-                                            , offset =          ((baseMargin, baseMargin + 32 + baseMargin), (256, baseMargin))
-                                            , parent =          windowContainer }
-                                , Element   { borderWidth =     3
-                                            , borderColor =     panelBorderColor
-                                            , backColor =       panelBGColor
-                                            , backImage =       Blank
-                                            , horAlignment =    alignStretch
-                                            , vertAlignment =   alignStretch
-                                            , offset =          ((baseMargin + 256 + baseMargin, baseMargin + 32 + baseMargin), (baseMargin + 256 + baseMargin, baseMargin + 128 + baseMargin))
-                                            , parent =          windowContainer }
-                                , Element   { borderWidth =     3
-                                            , borderColor =     panelBorderColor
-                                            , backColor =       panelBGColor
-                                            , backImage =       Blank
-                                            , horAlignment =    alignStretch
-                                            , vertAlignment =   alignBottom
-                                            , offset =          ((baseMargin + 256 + baseMargin, baseMargin), (baseMargin + 256 + baseMargin, 128))
-                                            , parent =          windowContainer }
-                                , Element   { borderWidth =     3
-                                            , borderColor =     panelBorderColor
-                                            , backColor =       panelBGColor
-                                            , backImage =       Blank
-                                            , horAlignment =    alignStretch
-                                            , vertAlignment =   alignTop
-                                            , offset =          ((baseMargin, baseMargin), (baseMargin, 32))
-                                            , parent =          windowContainer } ] }
+                                , leftPanel
+                                , rightPanel
+                                , centerPanel
+                                , bottomPanel
+                                , topPanel ] }
     where
         mainBGColor = makeColor (51/255) (51/255) (51/255) 1
         panelBorderColor = makeColor (140/255) (140/255) (140/255) 1
@@ -71,3 +36,43 @@ startState =
                                     , vertAlignment =   alignStretch
                                     , offset =          ((0, 0), (0, 0))
                                     , parent =          GUI.False }
+        leftPanel =         Element   { borderWidth =     3
+                                    , borderColor =     panelBorderColor
+                                    , backColor =       panelBGColor
+                                    , backImage =       Blank
+                                    , horAlignment =    alignLeft
+                                    , vertAlignment =   alignStretch
+                                    , offset =          ((baseMargin, baseMargin + 32 + baseMargin), (256, baseMargin))
+                                    , parent =          windowContainer }
+        rightPanel =        Element { borderWidth =     3
+                                    , borderColor =     panelBorderColor
+                                    , backColor =       panelBGColor
+                                    , backImage =       Blank
+                                    , horAlignment =    alignRight
+                                    , vertAlignment =   alignStretch
+                                    , offset =          ((baseMargin, baseMargin + 32 + baseMargin), (256, baseMargin))
+                                    , parent =          windowContainer }
+        centerPanel =       Element { borderWidth =     3
+                                    , borderColor =     panelBorderColor
+                                    , backColor =       panelBGColor
+                                    , backImage =       Blank
+                                    , horAlignment =    alignStretch
+                                    , vertAlignment =   alignStretch
+                                    , offset =          ((baseMargin + 256 + baseMargin, baseMargin + 32 + baseMargin), (baseMargin + 256 + baseMargin, baseMargin + 128 + baseMargin))
+                                    , parent =          windowContainer }
+        bottomPanel =       Element { borderWidth =     3
+                                    , borderColor =     panelBorderColor
+                                    , backColor =       panelBGColor
+                                    , backImage =       Blank
+                                    , horAlignment =    alignStretch
+                                    , vertAlignment =   alignBottom
+                                    , offset =          ((baseMargin + 256 + baseMargin, baseMargin), (baseMargin + 256 + baseMargin, 128))
+                                    , parent =          windowContainer }
+        topPanel =          Element { borderWidth =     3
+                                    , borderColor =     panelBorderColor
+                                    , backColor =       panelBGColor
+                                    , backImage =       Blank
+                                    , horAlignment =    alignStretch
+                                    , vertAlignment =   alignTop
+                                    , offset =          ((baseMargin, baseMargin), (baseMargin, 32))
+                                    , parent =          windowContainer } 
