@@ -1,6 +1,7 @@
 module DrawElement(drawElement) where
 
 import Graphics.Gloss(Display(..), Picture(..), pictures, color, translate, rectangleSolid)
+import Debug.Trace
 
 import State(AppState(..), AppWindow(..))
 import GUI  ( Element(..), Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch)
@@ -47,7 +48,7 @@ getX2 elem state =
         width $ window state
     else
         if (horAlignment elem) == alignCenter then
-            ((parX1 + parX2) `div` 2) + mx
+            ((parX1 + parX2) `div` 2) + (mw `div` 2)
         else if (horAlignment elem) == alignLeft then
             parX1 + mx + mw
         else if (horAlignment elem) == alignRight then
@@ -66,7 +67,7 @@ getY2 elem state =
         height $ window state
     else
         if (vertAlignment elem) == alignCenter then
-            ((parY1 + parY2) `div` 2) + my
+            ((parY1 + parY2) `div` 2) + (mh `div` 2)
         else if (vertAlignment elem) == alignTop then
             parY1 + my + mh
         else if (vertAlignment elem) == alignBottom then
@@ -85,7 +86,7 @@ getX1 elem state =
         0
     else -- Calculate the x position based on parent x
         if (horAlignment elem) == alignCenter then
-            ((parX1 + parX2) `div` 2) - mx
+            ((parX1 + parX2) `div` 2) + mx - (mw `div` 2)
         else if (horAlignment elem) == alignLeft then
             parX1 + mx
         else if (horAlignment elem) == alignRight then
@@ -104,7 +105,7 @@ getY1 elem state =
         0
     else -- Calculate the y position based on parent y
         if (vertAlignment elem) == alignCenter then
-            ((parY1 + parY2) `div` 2) - my
+            ((parY1 + parY2) `div` 2) + my - (mh `div` 2)
         else if (vertAlignment elem) == alignTop then
             parY1 + my
         else if (vertAlignment elem) == alignBottom then

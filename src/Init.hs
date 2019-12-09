@@ -1,6 +1,6 @@
 module Init where
 
-import Graphics.Gloss(Display(..), Picture(..), color, white, makeColor)
+import Graphics.Gloss(Display(..), Picture(..), color, white, black, makeColor)
 
 import GUI(Element(..), Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch)
 import State(AppState(..), AppWindow(..))
@@ -13,13 +13,14 @@ startState =
                                         , width =   winWidth
                                         , height =  winHeight }
                 , elements =    [ windowContainer
+                                , centerPanel 
+                                , drawPane
                                 , leftPanel
                                 , rightPanel
-                                , centerPanel
                                 , bottomPanel
                                 , topPanel ] }
     where
-        mainBGColor = makeColor (51/255) (51/255) (51/255) 1
+        mainBGColor = makeColor (100/255) (100/255) (100/255) 1
         panelBorderColor = makeColor (140/255) (140/255) (140/255) 1
         panelBGColor = makeColor (230/255) (230/255) (230/255) 1
 
@@ -36,7 +37,7 @@ startState =
                                     , vertAlignment =   alignStretch
                                     , offset =          ((0, 0), (0, 0))
                                     , parent =          GUI.False }
-        leftPanel =         Element   { borderWidth =     3
+        leftPanel =         Element { borderWidth =     3
                                     , borderColor =     panelBorderColor
                                     , backColor =       panelBGColor
                                     , backImage =       Blank
@@ -75,4 +76,12 @@ startState =
                                     , horAlignment =    alignStretch
                                     , vertAlignment =   alignTop
                                     , offset =          ((baseMargin, baseMargin), (baseMargin, 32))
-                                    , parent =          windowContainer } 
+                                    , parent =          windowContainer }
+        drawPane =          Element { borderWidth =     1
+                                    , borderColor =     black
+                                    , backColor =       white
+                                    , backImage =       Blank
+                                    , horAlignment =    alignCenter
+                                    , vertAlignment =   alignCenter
+                                    , offset =          ((0, 0), (640, 480))
+                                    , parent =          centerPanel }
