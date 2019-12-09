@@ -9,67 +9,7 @@ import Debug.Trace
 
 import State(AppState(..), AppWindow(..))
 import GUI(Element(..), Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch)
-
-startState :: AppState
-startState =
-    AppState    { window =  AppWindow   { bgColor = white
-                                        , fps =     60
-                                        , display = InWindow "Trinity Animator" (winWidth, winHeight) (200, 200)
-                                        , width =   winWidth
-                                        , height =  winHeight }
-                , elements =    [ windowContainer
-                                , Element   { borderWidth =     5
-                                            , borderColor =     white
-                                            , backColor =       green
-                                            , backImage =       Blank
-                                            , horAlignment =    alignLeft
-                                            , vertAlignment =   alignStretch
-                                            , offset =          ((32, 96), (256, 32))
-                                            , parent =          windowContainer }
-                                , Element   { borderWidth =     5
-                                            , borderColor =     red
-                                            , backColor =       blue
-                                            , backImage =       Blank
-                                            , horAlignment =    alignRight
-                                            , vertAlignment =   alignStretch
-                                            , offset =          ((32, 96), (256, 32))
-                                            , parent =          windowContainer }
-                                , Element   { borderWidth =     5
-                                            , borderColor =     yellow
-                                            , backColor =       magenta
-                                            , backImage =       Blank
-                                            , horAlignment =    alignStretch
-                                            , vertAlignment =   alignStretch
-                                            , offset =          ((32 + 256 + 32, 96), (32 + 256 + 32, 32 + 128 + 32))
-                                            , parent =          windowContainer }
-                                , Element   { borderWidth =     5
-                                            , borderColor =     green
-                                            , backColor =       white
-                                            , backImage =       Blank
-                                            , horAlignment =    alignStretch
-                                            , vertAlignment =   alignBottom
-                                            , offset =          ((32 + 256 + 32, 32), (32 + 256 + 32, 128))
-                                            , parent =          windowContainer }
-                                , Element   { borderWidth =     5
-                                            , borderColor =     blue
-                                            , backColor =       yellow
-                                            , backImage =       Blank
-                                            , horAlignment =    alignStretch
-                                            , vertAlignment =   alignTop
-                                            , offset =          ((32, 32), (32, 32))
-                                            , parent =          windowContainer } ] }
-    where
-        winWidth = 1280
-        winHeight = 720
-
-        windowContainer =   Element { borderWidth =     0
-                                    , borderColor =     red
-                                    , backColor =       black
-                                    , backImage =       Blank
-                                    , horAlignment =    alignStretch
-                                    , vertAlignment =   alignStretch
-                                    , offset =          ((0, 0), (0, 0))
-                                    , parent =          GUI.False }
+import Init(startState)
 
 -- Get parent x2
 getX1, getX2, getY1, getY2 :: Element -> AppState -> Int
