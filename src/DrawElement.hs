@@ -1,10 +1,6 @@
 module DrawElement(drawElement) where
 
-import Graphics.Gloss   ( Display(..)
-                        , Picture(..), pictures, translate, circleSolid, rectangleSolid
-                        , color, white, black, red, blue, green, yellow, magenta )
-import Graphics.Gloss.Data.ViewPort
-import Graphics.Gloss.Interface.Pure.Game(play, Event(..), SpecialKey(..), KeyState(..), Key(..))
+import Graphics.Gloss(Display(..), Picture(..), pictures, color, translate, rectangleSolid)
 
 import State(AppState(..), AppWindow(..))
 import GUI  ( Element(..), Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch)
