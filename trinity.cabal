@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c019187c0e4367fccfafe97cccef86a9042442ac1a691ca591053bc91c3dfec7
+-- hash: 9bb6d2d022baaec2685a7b2c94517dfd8d80e42bd1b7ab83128e6b904b9ac26b
 
 name:           trinity
 version:        0.1.0.0
@@ -27,6 +27,7 @@ source-repository head
 
 library
   exposed-modules:
+      DrawElement
       GUI
       Init
       State
