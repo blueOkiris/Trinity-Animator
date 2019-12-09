@@ -2,7 +2,8 @@ module Init where
 
 import Graphics.Gloss(Display(..), Picture(..), color, white, black, makeColor)
 
-import GUI(Element(..), Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch)
+import GUI  ( Element(..), DynamicElement(..), defaultElementUpdate
+            , Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch )
 import State(AppState(..), AppWindow(..))
 
 startState :: AppState
@@ -29,59 +30,73 @@ startState =
 
         baseMargin = 10
 
-        windowContainer =   Element { borderWidth =     0
-                                    , borderColor =     white
-                                    , backColor =       mainBGColor
-                                    , backImage =       Blank
-                                    , horAlignment =    alignStretch
-                                    , vertAlignment =   alignStretch
-                                    , offset =          ((0, 0), (0, 0))
-                                    , parent =          GUI.False }
-        leftPanel =         Element { borderWidth =     3
-                                    , borderColor =     panelBorderColor
-                                    , backColor =       panelBGColor
-                                    , backImage =       Blank
-                                    , horAlignment =    alignLeft
-                                    , vertAlignment =   alignStretch
-                                    , offset =          ((baseMargin, baseMargin + 32 + baseMargin), (256, baseMargin))
-                                    , parent =          windowContainer }
-        rightPanel =        Element { borderWidth =     3
-                                    , borderColor =     panelBorderColor
-                                    , backColor =       panelBGColor
-                                    , backImage =       Blank
-                                    , horAlignment =    alignRight
-                                    , vertAlignment =   alignStretch
-                                    , offset =          ((baseMargin, baseMargin + 32 + baseMargin), (256, baseMargin))
-                                    , parent =          windowContainer }
-        centerPanel =       Element { borderWidth =     3
-                                    , borderColor =     panelBorderColor
-                                    , backColor =       panelBGColor
-                                    , backImage =       Blank
-                                    , horAlignment =    alignStretch
-                                    , vertAlignment =   alignStretch
-                                    , offset =          ((baseMargin + 256 + baseMargin, baseMargin + 32 + baseMargin), (baseMargin + 256 + baseMargin, baseMargin + 128 + baseMargin))
-                                    , parent =          windowContainer }
-        bottomPanel =       Element { borderWidth =     3
-                                    , borderColor =     panelBorderColor
-                                    , backColor =       panelBGColor
-                                    , backImage =       Blank
-                                    , horAlignment =    alignStretch
-                                    , vertAlignment =   alignBottom
-                                    , offset =          ((baseMargin + 256 + baseMargin, baseMargin), (baseMargin + 256 + baseMargin, 128))
-                                    , parent =          windowContainer }
-        topPanel =          Element { borderWidth =     3
-                                    , borderColor =     panelBorderColor
-                                    , backColor =       panelBGColor
-                                    , backImage =       Blank
-                                    , horAlignment =    alignStretch
-                                    , vertAlignment =   alignTop
-                                    , offset =          ((baseMargin, baseMargin), (baseMargin, 32))
-                                    , parent =          windowContainer }
-        drawPane =          Element { borderWidth =     1
-                                    , borderColor =     black
-                                    , backColor =       white
-                                    , backImage =       Blank
-                                    , horAlignment =    alignCenter
-                                    , vertAlignment =   alignCenter
-                                    , offset =          ((0, 0), (640, 480))
-                                    , parent =          centerPanel }
+        windowContainer =   
+            DynamicElement  { elemCore = Element    { borderWidth =     0
+                                                    , borderColor =     white
+                                                    , backColor =       mainBGColor
+                                                    , backImage =       Blank
+                                                    , horAlignment =    alignStretch
+                                                    , vertAlignment =   alignStretch
+                                                    , offset =          ((0, 0), (0, 0))
+                                                    , parent =          GUI.False }
+                            , updateElem =      defaultElementUpdate }
+        leftPanel =
+            DynamicElement  { elemCore = Element    { borderWidth =     3
+                                                    , borderColor =     panelBorderColor
+                                                    , backColor =       panelBGColor
+                                                    , backImage =       Blank
+                                                    , horAlignment =    alignLeft
+                                                    , vertAlignment =   alignStretch
+                                                    , offset =          ((baseMargin, baseMargin + 32 + baseMargin), (256, baseMargin))
+                                                    , parent =          elemCore windowContainer }
+                            , updateElem =      defaultElementUpdate }
+        rightPanel =
+            DynamicElement  { elemCore = Element    { borderWidth =     3
+                                                    , borderColor =     panelBorderColor
+                                                    , backColor =       panelBGColor
+                                                    , backImage =       Blank
+                                                    , horAlignment =    alignRight
+                                                    , vertAlignment =   alignStretch
+                                                    , offset =          ((baseMargin, baseMargin + 32 + baseMargin), (256, baseMargin))
+                                                    , parent =          elemCore windowContainer }
+                            , updateElem = defaultElementUpdate }
+        centerPanel =
+            DynamicElement  { elemCore = Element    { borderWidth =     3
+                                                    , borderColor =     panelBorderColor
+                                                    , backColor =       panelBGColor
+                                                    , backImage =       Blank
+                                                    , horAlignment =    alignStretch
+                                                    , vertAlignment =   alignStretch
+                                                    , offset =          ((baseMargin + 256 + baseMargin, baseMargin + 32 + baseMargin), (baseMargin + 256 + baseMargin, baseMargin + 128 + baseMargin))
+                                                    , parent =          elemCore windowContainer }
+                            , updateElem = defaultElementUpdate }
+        bottomPanel =
+            DynamicElement  { elemCore = Element    { borderWidth =     3
+                                                    , borderColor =     panelBorderColor
+                                                    , backColor =       panelBGColor
+                                                    , backImage =       Blank
+                                                    , horAlignment =    alignStretch
+                                                    , vertAlignment =   alignBottom
+                                                    , offset =          ((baseMargin + 256 + baseMargin, baseMargin), (baseMargin + 256 + baseMargin, 128))
+                                                    , parent =          elemCore windowContainer }
+                            , updateElem = defaultElementUpdate }
+        topPanel =
+            DynamicElement  { elemCore = Element    { borderWidth =     3
+                                                    , borderColor =     panelBorderColor
+                                                    , backColor =       panelBGColor
+                                                    , backImage =       Blank
+                                                    , horAlignment =    alignStretch
+                                                    , vertAlignment =   alignTop
+                                                    , offset =          ((baseMargin, baseMargin), (baseMargin, 32))
+                                                    , parent =          elemCore windowContainer }
+                            , updateElem = defaultElementUpdate }
+        drawPane =
+            DynamicElement  { elemCore = Element    { borderWidth =     1
+                                                    , borderColor =     black
+                                                    , backColor =       white
+                                                    , backImage =       Blank
+                                                    , horAlignment =    alignCenter
+                                                    , vertAlignment =   alignCenter
+                                                    , offset =          ((0, 0), (640, 480))
+                                                    , parent =          elemCore centerPanel }
+                            , updateElem = defaultElementUpdate }

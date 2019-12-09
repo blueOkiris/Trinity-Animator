@@ -1,7 +1,7 @@
 module State where
 
 import Graphics.Gloss(Color, Display)
-import GUI(Element(..))
+import GUI(DynamicElement(..))
 
 -- Window type that stores info about the actual running of the app
 data AppWindow = 
@@ -14,4 +14,4 @@ data AppWindow =
 -- The global state type that holds all of our application's data
 data AppState =
     AppState    { window    :: AppWindow 
-                , elements  :: [Element] }
+                , elements  :: [DynamicElement] }

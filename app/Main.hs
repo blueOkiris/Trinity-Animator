@@ -7,7 +7,7 @@ import Graphics.Gloss.Data.ViewPort
 import Graphics.Gloss.Interface.Pure.Game(play)
 
 import State(AppState(..), AppWindow(..))
-import GUI  ( Element(..), Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch)
+import GUI  ( Element(..), DynamicElement(..), Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch)
 import Init(startState)
 import DrawElement
 import Event(handler)
@@ -16,7 +16,7 @@ import Event(handler)
 drawElements :: AppState -> Picture
 drawElements state =
     --trace ("Drawing Elements:\n")
-    pictures (map (drawElement state) (elements state))
+    pictures (map (drawElement state) (map (elemCore) (elements state)))
 
 -- Draw everything in the window
 render :: AppState -> Picture

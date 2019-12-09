@@ -26,6 +26,17 @@ data Element =
             , offset        :: ((Int, Int), (Int, Int))
             , parent        :: Element } deriving(Eq)
 
+-- We need element to derive Eq, but we also want to be able to have self modifying functions
+-- Thus, we need a second data type that stores the element and its function
+data DynamicElement =
+    DynamicElement  { elemCore      :: Element
+                    , updateElem    :: Element -> Element }
+
+-- A default option for update that does nothing
+defaultElementUpdate :: Element -> Element
+defaultElementUpdate elem =
+    elem
+
 -- Function to load image data from a file
 {-# NOINLINE pngToPicture #-}
 pngToPicture :: FilePath -> Picture
