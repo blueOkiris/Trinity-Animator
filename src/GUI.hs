@@ -30,11 +30,11 @@ data Element =
 -- Thus, we need a second data type that stores the element and its function
 data DynamicElement =
     DynamicElement  { elemCore      :: Element
-                    , updateElem    :: Element -> Element }
+                    , updateElem    :: Float -> Element -> Element }
 
 -- A default option for update that does nothing
-defaultElementUpdate :: Element -> Element
-defaultElementUpdate elem =
+defaultElementUpdate :: Float -> Element -> Element
+defaultElementUpdate seconds elem =
     elem
 
 -- Function to load image data from a file

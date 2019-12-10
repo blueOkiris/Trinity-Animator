@@ -30,10 +30,21 @@ render state =
         winWidth = fromIntegral (width $ window state)
         winHeight = fromIntegral (height $ window state)
 
+-- Update an element inside a dynamic element based on the d.e.'s update function
+updateElement :: Float -> DynamicElement -> DynamicElement
+updateElement seconds de =
+    de  { elemCore =    updatedCore }
+    where
+        updateFunc =    updateElem de
+        elem =          elemCore de
+        updatedCore =   updateFunc seconds elem
+
 -- Update everything based on new state
 update :: Float -> AppState -> AppState
 update seconds state =
-    state
+    state   { elements =    updatedElements }
+    where
+        updatedElements = map (updateElement seconds) (elements state)
 
 -- This initalizes the "play" command
 -- play is of type :: Display -> Color -> Int -> T -> (T -> Picture) -> (Event -> T -> T) -> (Float -> T -> T)
