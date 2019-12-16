@@ -29,36 +29,13 @@ data Element =
 
 -- We need element to derive Eq, but we also want to be able to have self modifying functions
 -- Thus, we need a second data type that stores the element and its function
-data DynamicElement =
+data DynamicElement appState =
     DynamicElement  { elemCore          :: Element
-                    , updateElem        :: Float -> Element -> Element
-                    , keyEventElem      :: Event -> Element -> Element }
-
--- A default option for update that does nothing
-defaultElementUpdate :: Float -> Element -> Element
-defaultElementUpdate seconds elem =
-    elem
-
--- A default option for handlers that does nothing
-defaultEventHandler :: Event -> Element -> Element
-defaultEventHandler event elem =
-    elem
+                    , updateElem        :: Float -> (appState, Element) -> (appState, Element)
+                    , keyEventElem      :: Event -> (appState, Element) -> (appState, Element) }
 
 -- Function to load image data from a file
 {-# NOINLINE pngToPicture #-}
 pngToPicture :: FilePath -> Picture
 pngToPicture fname =
     maybe (text "PNG ERROR") id (unsafePerformIO $ loadJuicyPNG fname)
-
--- Allow for drawing to plane
-drawPaneHandler :: Event -> Element -> Element
-drawPaneHandler (EventKey (MouseButton btn) upOrDown modifier position) elem =
-    if btn == LeftButton then
-        if upOrDown == Down then
-            elem { backColor = red }
-        else
-            elem { backColor = white }
-    else
-        elem
-drawPaneHandler _ elem =
-    elem

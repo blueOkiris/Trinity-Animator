@@ -1,15 +1,10 @@
 module Event where
 
-import Graphics.Gloss.Interface.Pure.Game(Event(..), SpecialKey(..), KeyState(..), Key(..))
+import Graphics.Gloss.Interface.Pure.Game(Event(..), SpecialKey(..), KeyState(..), Key(..), MouseButton(..))
 
 import State(AppWindow(..), AppState(..))
 import GUI(Element(..), DynamicElement(..))
-
-applyHandler :: Event -> DynamicElement -> DynamicElement
-applyHandler event elem =
-    elem { elemCore = handledElemCore }
-    where
-        handledElemCore = (keyEventElem elem) event (elemCore elem)
+import GUIObjects(applyHandler)
 
 -- Handle events for things like keys and mouse clicks
 handler :: Event -> AppState -> AppState
@@ -17,12 +12,12 @@ handler :: Event -> AppState -> AppState
 handler (EventKey key Down mod pos) state =
     state { elements = handledElems }
     where
-        handledElems = map (applyHandler (EventKey key Down mod pos)) (elements state)
+        handledElems = map (applyHandler (EventKey key Down mod pos) state) (elements state)
 -- Key up event handler
 handler (EventKey key Up mod pos) state =
     state { elements = handledElems }
     where
-        handledElems = map (applyHandler (EventKey key Up mod pos)) (elements state)
+        handledElems = map (applyHandler (EventKey key Up mod pos) state) (elements state)
 -- Handle resize -> Make it so (0, 0) is always the top left
 handler (EventResize newSize) state =
     state   { window = adjustedWindow }

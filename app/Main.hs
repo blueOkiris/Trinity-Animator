@@ -7,7 +7,8 @@ import Graphics.Gloss.Data.ViewPort
 import Graphics.Gloss.Interface.Pure.Game(play)
 
 import State(AppState(..), AppWindow(..))
-import GUI  ( Element(..), DynamicElement(..), Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch)
+import GUI(Element(..), DynamicElement(..), Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch)
+import GUIObjects(updateElement)
 import Init(startState)
 import DrawElement
 import Event(handler)
@@ -30,21 +31,24 @@ render state =
         winWidth = fromIntegral (width $ window state)
         winHeight = fromIntegral (height $ window state)
 
--- Update an element inside a dynamic element based on the d.e.'s update function
-updateElement :: Float -> DynamicElement -> DynamicElement
-updateElement seconds de =
-    de  { elemCore =    updatedCore }
+updateAll :: Int -> Float -> AppState -> AppState
+updateAll index seconds state =
+    if index == length (elements state) then
+        state
+    else
+        updateAll (index + 1) seconds newState
     where
-        updateFunc =    updateElem de
-        elem =          elemCore de
-        updatedCore =   updateFunc seconds elem
+        -- First, update the state and get a new updated element
+        (newState, updatedElement) = updateElement seconds state ((elements state) !! index)
+
+        -- Then copy the updated element into the new state at the proper index
+        newElements = (fst (splitAt index (elements state))) ++ [updatedElement] ++ (snd (splitAt (index + 1) (elements state)))
+        newNewState = newState { elements = newElements }
 
 -- Update everything based on new state
 update :: Float -> AppState -> AppState
 update seconds state =
-    state   { elements =    updatedElements }
-    where
-        updatedElements = map (updateElement seconds) (elements state)
+    updateAll 0 seconds state        
 
 -- This initalizes the "play" command
 -- play is of type :: Display -> Color -> Int -> T -> (T -> Picture) -> (Event -> T -> T) -> (Float -> T -> T)

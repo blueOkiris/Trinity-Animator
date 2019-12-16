@@ -55,7 +55,7 @@ extra-deps:
 # require-stack-version: ">=1.9"
 #
 # Override the architecture used by stack, especially useful on Windows
-# arch: i386
+arch: i386
 # arch: x86_64
 #
 # Extra directories used by stack for building

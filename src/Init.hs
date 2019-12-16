@@ -2,24 +2,27 @@ module Init where
 
 import Graphics.Gloss(Display(..), Picture(..), color, white, black, makeColor)
 
-import GUI  ( Element(..), DynamicElement(..), defaultElementUpdate, defaultEventHandler, drawPaneHandler
+import GUI  ( Element(..), DynamicElement(..)
             , Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch )
-import State(AppState(..), AppWindow(..))
+import GUIObjects(defaultElementEventHandler, drawPaneHandler, defaultElementUpdate)
+import State(AppState(..), AppWindow(..), newDrawing, moveDrawing)
 
 startState :: AppState
 startState =
-    AppState    { window =  AppWindow   { bgColor = white
-                                        , fps =     60
-                                        , display = InWindow "Trinity Animator" (winWidth, winHeight) (200, 200)
-                                        , width =   winWidth
-                                        , height =  winHeight }
+    AppState    { window =      AppWindow   { bgColor = white
+                                            , fps =     60
+                                            , display = InWindow "Trinity Animator" (winWidth, winHeight) (200, 200)
+                                            , width =   winWidth
+                                            , height =  winHeight }
                 , elements =    [ windowContainer
                                 , centerPanel 
                                 , drawPane
                                 , leftPanel
                                 , rightPanel
                                 , bottomPanel
-                                , topPanel ] }
+                                , topPanel ] 
+                , drawings =    []
+                , drawTool =    newDrawing }
     where
         mainBGColor = makeColor (100/255) (100/255) (100/255) 1
         panelBorderColor = makeColor (140/255) (140/255) (140/255) 1
@@ -40,7 +43,7 @@ startState =
                                                     , offset =          ((0, 0), (0, 0))
                                                     , parent =          GUI.False }
                             , updateElem =      defaultElementUpdate
-                            , keyEventElem =    defaultEventHandler }
+                            , keyEventElem =    defaultElementEventHandler }
         leftPanel =
             DynamicElement  { elemCore = Element    { borderWidth =     3
                                                     , borderColor =     panelBorderColor
@@ -51,7 +54,7 @@ startState =
                                                     , offset =          ((baseMargin, baseMargin + 32 + baseMargin), (256, baseMargin))
                                                     , parent =          elemCore windowContainer }
                             , updateElem =      defaultElementUpdate
-                            , keyEventElem =    defaultEventHandler }
+                            , keyEventElem =    defaultElementEventHandler }
         rightPanel =
             DynamicElement  { elemCore = Element    { borderWidth =     3
                                                     , borderColor =     panelBorderColor
@@ -62,7 +65,7 @@ startState =
                                                     , offset =          ((baseMargin, baseMargin + 32 + baseMargin), (256, baseMargin))
                                                     , parent =          elemCore windowContainer }
                             , updateElem =      defaultElementUpdate
-                            , keyEventElem =    defaultEventHandler }
+                            , keyEventElem =    defaultElementEventHandler }
         centerPanel =
             DynamicElement  { elemCore = Element    { borderWidth =     3
                                                     , borderColor =     panelBorderColor
@@ -73,7 +76,7 @@ startState =
                                                     , offset =          ((baseMargin + 256 + baseMargin, baseMargin + 32 + baseMargin), (baseMargin + 256 + baseMargin, baseMargin + 128 + baseMargin))
                                                     , parent =          elemCore windowContainer }
                             , updateElem =      defaultElementUpdate
-                            , keyEventElem =    defaultEventHandler }
+                            , keyEventElem =    defaultElementEventHandler }
         bottomPanel =
             DynamicElement  { elemCore = Element    { borderWidth =     3
                                                     , borderColor =     panelBorderColor
@@ -84,7 +87,7 @@ startState =
                                                     , offset =          ((baseMargin + 256 + baseMargin, baseMargin), (baseMargin + 256 + baseMargin, 128))
                                                     , parent =          elemCore windowContainer }
                             , updateElem =      defaultElementUpdate
-                            , keyEventElem =    defaultEventHandler }
+                            , keyEventElem =    defaultElementEventHandler }
         topPanel =
             DynamicElement  { elemCore = Element    { borderWidth =     3
                                                     , borderColor =     panelBorderColor
@@ -95,7 +98,7 @@ startState =
                                                     , offset =          ((baseMargin, baseMargin), (baseMargin, 32))
                                                     , parent =          elemCore windowContainer }
                             , updateElem =      defaultElementUpdate
-                            , keyEventElem =    defaultEventHandler }
+                            , keyEventElem =    defaultElementEventHandler }
         drawPane =
             DynamicElement  { elemCore = Element    { borderWidth =     1
                                                     , borderColor =     black
