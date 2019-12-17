@@ -10,7 +10,7 @@ import State(AppState(..), Vector(..), AppWindow(..), newDrawing, moveDrawing)
 startState :: AppState
 startState =
     AppState    { window =          AppWindow   { bgColor = white
-                                                , fps =     60
+                                                , fps =     15
                                                 , display = InWindow "Trinity Animator" (winWidth, winHeight) (200, 200)
                                                 , width =   winWidth
                                                 , height =  winHeight }
