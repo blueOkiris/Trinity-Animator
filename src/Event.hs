@@ -6,18 +6,46 @@ import State(AppWindow(..), AppState(..))
 import GUI(Element(..), DynamicElement(..))
 import GUIObjects(applyHandler)
 
+handleAll :: Int -> Event -> AppState -> AppState
+handleAll index event state =
+    if index == length (elements state) then
+        state
+    else
+        handleAll (index + 1) event newState
+    where
+        -- First, update the state and get a new updated element
+        (newState, updatedElement) = applyHandler event state ((elements state) !! index)
+
+        -- Then copy the updated element into the new state at the proper index
+        newElements = (fst (splitAt index (elements state))) ++ [updatedElement] ++ (snd (splitAt (index + 1) (elements state)))
+        newNewState = newState { elements = newElements }
+
 -- Handle events for things like keys and mouse clicks
 handler :: Event -> AppState -> AppState
 -- Key down event handler
-handler (EventKey key Down mod pos) state =
-    state { elements = handledElems }
+handler (EventKey key Down mod (x, y)) state =
+    newState
     where
-        handledElems = map (applyHandler (EventKey key Down mod pos) state) (elements state)
+        newState = handleAll 0 (EventKey key Down mod (x + winWidth / 2, -(y - winHeight / 2))) state
+        
+        winWidth = fromIntegral (width $ window state)
+        winHeight = fromIntegral (height $ window state)
 -- Key up event handler
-handler (EventKey key Up mod pos) state =
-    state { elements = handledElems }
+handler (EventKey key Up mod (x, y)) state =
+    newState
     where
-        handledElems = map (applyHandler (EventKey key Up mod pos) state) (elements state)
+        newState = handleAll 0 (EventKey key Up mod (x + winWidth / 2, -(y - winHeight / 2))) state
+        
+        winWidth = fromIntegral (width $ window state)
+        winHeight = fromIntegral (height $ window state)
+-- Mouse movement event handler
+handler (EventMotion (x, y)) state =
+    newState
+    where
+        newState = handleAll 0 (EventMotion (x + winWidth / 2, -(y - winHeight / 2))) state
+        
+        winWidth = fromIntegral (width $ window state)
+        winHeight = fromIntegral (height $ window state)
 -- Handle resize -> Make it so (0, 0) is always the top left
 handler (EventResize newSize) state =
     state   { window = adjustedWindow }
@@ -31,7 +59,9 @@ handler (EventResize newSize) state =
         --newWindowElement = ((fst splitElements) !! 0)   { position =    (newWidth `div` 2, newHeight `div` 2)
         --                                                , size =        (newWidth, newHeight) }
         --adjustedElements = newWindowElement : (snd splitElements)
+
+-- ALL EVENTS COVERED - CODE BELOW NO LONGER NEEDED:
 -- Handle anything else
-handler _ state =
-    state
+--handler _ state =
+--    state
 

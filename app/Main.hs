@@ -1,17 +1,36 @@
 module Main where
 
 import Graphics.Gloss   ( Display(..)
-                        , Picture(..), pictures, translate, circleSolid, rectangleSolid
+                        , Picture(..), pictures, translate, circleSolid, rectangleSolid, line
                         , color, white, black, red, blue, green, yellow, magenta )
 import Graphics.Gloss.Data.ViewPort
 import Graphics.Gloss.Interface.Pure.Game(play)
+import Debug.Trace
 
-import State(AppState(..), AppWindow(..))
+import State(AppState(..), Vector(..), AppWindow(..))
 import GUI(Element(..), DynamicElement(..), Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch)
 import GUIObjects(updateElement)
 import Init(startState)
 import DrawElement
 import Event(handler)
+
+-- Draw all the vectors on the screen
+-- Color not implemented, so black for now
+drawVector :: Int -> Vector -> Picture
+drawVector index vector =
+    if length (pointList vector) == 0 || index == (length (pointList vector)) - 1 then
+        Blank
+    else if length (pointList vector) == 1 then
+        translate x y (color black $ circleSolid 10)
+    else
+        pictures [ vectorLine, drawVector (index + 1) vector ]
+    where
+        (x, y) = (pointList vector) !! index
+        myTwoPoints = take 2 (snd (splitAt index (pointList vector)))
+        flippedPoints = map (\(x, y) -> (x, -y)) myTwoPoints
+        vectorLine = color black $ line
+                        --trace ("Drawing line with points: " ++ (show flippedPoints)) 
+                        flippedPoints
 
 -- Draw GUI elements in a list of elements
 drawElements :: AppState -> Picture
@@ -26,10 +45,15 @@ render state =
         (viewPortInit   { viewPortTranslate = (-winWidth / 2, winHeight / 2) })
         (pictures   [ Blank
                     --, translate 0 0 (color red $ circleSolid 100) ])
-                    , drawElements state ])
+                    , drawElements state 
+                    , pictures vectorPictures
+                    --, line [ (0, 0), (1280, -720) ]
+                    , --trace ("Rendering current vector with points: " ++ (show (pointList (currentDrawing state))) ++ "\nTool State: " ++ (show (drawTool state)))
+                        (drawVector 0 (currentDrawing state)) ])
     where
         winWidth = fromIntegral (width $ window state)
         winHeight = fromIntegral (height $ window state)
+        vectorPictures = map (drawVector 0) (drawings state)
 
 updateAll :: Int -> Float -> AppState -> AppState
 updateAll index seconds state =

@@ -2,9 +2,11 @@ module GUIObjects where
 
 import Graphics.Gloss(red, white)
 import Graphics.Gloss.Interface.Pure.Game(Event(..), SpecialKey(..), KeyState(..), Key(..), MouseButton(..))
+import Debug.Trace
 
-import State(AppWindow(..), AppState(..), DrawTool, newDrawing, isMakingNewDrawing, moveDrawing)
+import State(AppWindow(..), Vector(..), AppState(..), DrawTool, newDrawing, isMakingNewDrawing, moveDrawing)
 import GUI(Element(..), DynamicElement(..))
+import DrawElement(getX1, getX2, getY1, getY2)
 
 -- A default option for update that does nothing
 defaultElementUpdate :: Float -> (AppState, Element) -> (AppState, Element)
@@ -20,14 +22,26 @@ defaultElementEventHandler event (state, elem) =
 drawPaneHandler :: Event -> (AppState, Element) -> (AppState, Element)
 drawPaneHandler (EventKey (MouseButton btn) upOrDown modifier (x, y)) (state, elem) =
     -- First check to make sure we're actually in the element
-    if btn == LeftButton then
-        if upOrDown == Down then
-            (state { drawTool = changeToolDown }, elem)
-        else if upOrDown == Up then
-            (state { drawTool = changeToolUp }, elem)
-        else
-            (state, elem)
+    if x >= fromIntegral (getX1 elem state) && x <= fromIntegral (getX2 elem state) 
+        && y >= fromIntegral (getY1 elem state) && y <=  fromIntegral (getY2 elem state) then
+            if btn == LeftButton then
+                if upOrDown == Down then
+                    --trace "Down!"
+                    (state { drawTool = changeToolDown }, elem)
+                else if upOrDown == Up then
+                    --trace "Up!" 
+                    (state  {   drawTool = 
+                                    --trace ("Draw Tool" ++ (show changeToolUp))
+                                    changeToolUp
+                            ,   drawings = newVectors 
+                            ,   currentDrawing = Vector { pointList = [] } }, elem)
+                else
+                    --trace "Other!" 
+                    (state, elem)
+            else
+                (state, elem)
     else
+        --trace ("Not in plane! (x, y) = (" ++ (show (x, y)))
         (state, elem)
     where
         changeToolDown =    if drawTool state == newDrawing then
@@ -38,6 +52,21 @@ drawPaneHandler (EventKey (MouseButton btn) upOrDown modifier (x, y)) (state, el
                                 newDrawing
                             else
                                 drawTool state
+        newVectors =        --trace ("Adding vector with points, " ++ (show (pointList (currentDrawing state))))
+                            ((drawings state) ++ [currentDrawing state])
+drawPaneHandler (EventMotion (x, y)) (state, elem) =
+    if x >= fromIntegral (getX1 elem state) && x <= fromIntegral (getX2 elem state) 
+        && y >= fromIntegral (getY1 elem state) && y <= fromIntegral (getY2 elem state) then
+            if drawTool state == isMakingNewDrawing then
+                (state { currentDrawing = vectorWithPoint }, elem)
+            else
+                (state, elem)
+    else
+        (state, elem)
+    where
+        currVec = currentDrawing state
+        newPointList = (pointList currVec) ++ [ (x, y) ]
+        vectorWithPoint = currVec { pointList = newPointList }
 drawPaneHandler _ (state, elem) =
     (state, elem)
 
@@ -57,8 +86,8 @@ updateElement seconds state de =
         (updatedState, updatedCore) =   updateFunc seconds (state, elem)
 
 -- Handle events for and element
-applyHandler :: Event -> AppState -> (DynamicElement AppState) -> (DynamicElement AppState)
+applyHandler :: Event -> AppState -> (DynamicElement AppState) -> (AppState, (DynamicElement AppState))
 applyHandler event state elem =
-    elem { elemCore = handledElemCore }
+    (newState, elem { elemCore = handledElemCore })
     where
         (newState, handledElemCore) = (keyEventElem elem) event (state, (elemCore elem))

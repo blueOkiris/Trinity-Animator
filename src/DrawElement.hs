@@ -1,4 +1,4 @@
-module DrawElement(drawElement) where
+module DrawElement where
 
 import Graphics.Gloss(Display(..), Picture(..), pictures, color, translate, rectangleSolid)
 import Debug.Trace

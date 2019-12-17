@@ -5,24 +5,25 @@ import Graphics.Gloss(Display(..), Picture(..), color, white, black, makeColor)
 import GUI  ( Element(..), DynamicElement(..)
             , Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch )
 import GUIObjects(defaultElementEventHandler, drawPaneHandler, defaultElementUpdate)
-import State(AppState(..), AppWindow(..), newDrawing, moveDrawing)
+import State(AppState(..), Vector(..), AppWindow(..), newDrawing, moveDrawing)
 
 startState :: AppState
 startState =
-    AppState    { window =      AppWindow   { bgColor = white
-                                            , fps =     60
-                                            , display = InWindow "Trinity Animator" (winWidth, winHeight) (200, 200)
-                                            , width =   winWidth
-                                            , height =  winHeight }
-                , elements =    [ windowContainer
-                                , centerPanel 
-                                , drawPane
-                                , leftPanel
-                                , rightPanel
-                                , bottomPanel
-                                , topPanel ] 
-                , drawings =    []
-                , drawTool =    newDrawing }
+    AppState    { window =          AppWindow   { bgColor = white
+                                                , fps =     60
+                                                , display = InWindow "Trinity Animator" (winWidth, winHeight) (200, 200)
+                                                , width =   winWidth
+                                                , height =  winHeight }
+                , elements =        [ windowContainer
+                                    , centerPanel 
+                                    , drawPane
+                                    , leftPanel
+                                    , rightPanel
+                                    , bottomPanel
+                                    , topPanel ] 
+                , drawings =        []
+                , currentDrawing =  Vector  {   pointList = [] }
+                , drawTool =        newDrawing }
     where
         mainBGColor = makeColor (100/255) (100/255) (100/255) 1
         panelBorderColor = makeColor (140/255) (140/255) (140/255) 1
