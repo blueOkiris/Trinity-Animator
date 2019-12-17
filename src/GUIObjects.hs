@@ -3,8 +3,9 @@ module GUIObjects where
 import Graphics.Gloss(red, white)
 import Graphics.Gloss.Interface.Pure.Game(Event(..), SpecialKey(..), KeyState(..), Key(..), MouseButton(..))
 import Debug.Trace
+import Control.DeepSeq
 
-import State(AppWindow(..), Vector(..), chaikinOpen, AppState(..), DrawTool, newDrawing, isMakingNewDrawing, moveDrawing)
+import State(AppWindow(..), AppVector(..), chaikinOpen, AppState(..), DrawTool, newDrawing, isMakingNewDrawing, moveDrawing)
 import GUI(Element(..), DynamicElement(..))
 import DrawElement(getX1, getX2, getY1, getY2)
 
@@ -25,18 +26,18 @@ drawPaneHandler (EventKey (MouseButton btn) upOrDown modifier (x, y)) (state, el
     if x >= fromIntegral (getX1 elem state) && x <= fromIntegral (getX2 elem state) 
         && y >= fromIntegral (getY1 elem state) && y <=  fromIntegral (getY2 elem state) then
             if btn == LeftButton then
-                if upOrDown == Down then
+                if upOrDown == Down && (drawTool state) == newDrawing then
                     --trace "Down!"
                     (state  { drawTool = changeToolDown 
-                            , currentDrawing = Vector { pointList = [] } }, elem)
-                else if upOrDown == Up then
+                            , currentDrawing = AppVector { pointList = [], smoothVersion = [] } }, elem)
+                else if upOrDown == Up && ((drawTool state) == newDrawing || (drawTool state) == isMakingNewDrawing) then
                     --trace "Up!" 
                     (state  {   drawTool = 
                                     --trace ("Draw Tool" ++ (show changeToolUp))
                                     changeToolUp
                             ,   drawings = newVectors
                             ,   currentDrawing = smoothVec }, elem)
-                            --,   currentDrawing = Vector { pointList = [] } }, elem)
+                            --,   currentDrawing = AppVector { pointList = [] } }, elem)
                 else
                     --trace "Other!" 
                     (state, elem)
@@ -54,16 +55,17 @@ drawPaneHandler (EventKey (MouseButton btn) upOrDown modifier (x, y)) (state, el
                                 newDrawing
                             else
                                 drawTool state
+                            
         currVec = currentDrawing state
-        smoothVec = --chaikinOpen 1 0.25 currVec
-                    currVec
-        newVectors =        --trace ("Adding vector with points, " ++ (show (pointList currVec)) ++ "\nSmoothing vector with points, " ++ (show (pointList smoothVec)))
+        smoothedVector = pointList $! (chaikinOpen 6 0.5 currVec)
+        smoothVec = currVec { smoothVersion = smoothedVector }
+        newVectors =        --trace ("Adding AppVector with points, " ++ (show (pointList currVec)) ++ "\nSmoothing AppVector with points, " ++ (show (pointList smoothVec)))
                             ((drawings state) ++ [ smoothVec ])
 drawPaneHandler (EventMotion (x, y)) (state, elem) =
     if x >= fromIntegral (getX1 elem state) && x <= fromIntegral (getX2 elem state) 
         && y >= fromIntegral (getY1 elem state) && y <= fromIntegral (getY2 elem state) then
             if drawTool state == isMakingNewDrawing then
-                if (round y) `mod` 1 == 0 || (round x) `mod` 1 == 0 then  -- Don't capture every point
+                if (round y) `mod` 4 == 0 || (round x) `mod` 4 == 0 then  -- Don't capture every point
                     (state { currentDrawing = vectorWithPoint }, elem)
                 else
                     (state, elem)
@@ -96,9 +98,10 @@ drawPaneHandler (EventKey (SpecialKey KeyDelete) Up _ _) (state, elem) =
         drawingsWOutCurr = fst (splitAt ((length (drawings state)) - 1) (drawings state))
         newCurrent = 
                     if length drawingsWOutCurr == 0 then
-                        Vector { pointList = [] }
+                        AppVector { pointList = [], smoothVersion = [] }
                     else
                         drawingsWOutCurr !! ((length drawingsWOutCurr) - 1)
+
 drawPaneHandler _ (state, elem) =
     (state, elem)
 

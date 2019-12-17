@@ -22,14 +22,15 @@ data AppWindow =
                 , height            :: Int }
 
 -- A drawing object that can be displayed on the draw
-data Vector =   
-    Vector      { pointList         :: [(Float, Float)] }
+data AppVector =   
+    AppVector      { pointList         :: [(Float, Float)]
+                , smoothVersion     :: [(Float, Float)] }
 
 -- Smooth a vector's points
-chaikin         :: Int -> Float -> Bool -> Vector -> Vector
---chaikinClosed   :: Int -> Float -> Vector -> Vector
-chaikinOpen     :: Int -> Float -> Vector -> Vector
-chaikinCut      :: Float -> (Float, Float) -> (Float, Float) -> Vector
+chaikin         :: Int -> Float -> Bool -> AppVector -> AppVector
+--chaikinClosed   :: Int -> Float -> AppVector -> AppVector
+chaikinOpen     :: Int -> Float -> AppVector -> AppVector
+chaikinCut      :: Float -> (Float, Float) -> (Float, Float) -> AppVector
 lerp            :: Float -> Float -> Float -> Float
 buildNewShape   :: Float -> Int -> Int -> [(Float, Float)] -> Bool -> [(Float, Float)]
 --chaikinClosed iterations ratio shape =
@@ -39,7 +40,7 @@ chaikinOpen iterations ratio shape =
 lerp a b f =
     a + f * (b - a)
 chaikinCut ratio (ax, ay) (bx, by) =
-    Vector  { pointList =   [ (n1x, n1y), (n2x, n2y) ] }
+    AppVector  { pointList =   [ (n1x, n1y), (n2x, n2y) ], smoothVersion = [ (n1x, n1y), (n2x, n2y) ] }
     where
         actRatio =  if ratio > 0.5 then
                         1 - ratio
@@ -65,7 +66,7 @@ chaikin iterations ratio close shape =
         newPoints = --trace ("Master list: " ++ (show $ pointList shape) ++ "\nNum corners: " ++ (show numCorners)) 
                         (buildNewShape ratio 0 numCorners (pointList shape) close)
         next = --trace ("Final Shape: " ++ (show newPoints))
-                    (Vector   { pointList = newPoints })
+                    (AppVector   { pointList = newPoints, smoothVersion = newPoints })
 buildNewShape ratio i numCorners masterList close =
     if i < numCorners then
         updateList ++ (buildNewShape ratio (i + 1) numCorners masterList close)
@@ -90,6 +91,6 @@ buildNewShape ratio i numCorners masterList close =
 data AppState =
     AppState    { window            :: AppWindow 
                 , elements          :: [DynamicElement AppState] 
-                , drawings          :: [Vector] 
-                , currentDrawing    :: Vector
+                , drawings          :: [AppVector] 
+                , currentDrawing    :: AppVector
                 , drawTool          :: DrawTool }

@@ -5,12 +5,12 @@ import Graphics.Gloss(Display(..), Picture(..), color, white, black, makeColor)
 import GUI  ( Element(..), DynamicElement(..)
             , Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch )
 import GUIObjects(defaultElementEventHandler, drawPaneHandler, defaultElementUpdate)
-import State(AppState(..), Vector(..), AppWindow(..), newDrawing, moveDrawing)
+import State(AppState(..), AppVector(..), AppWindow(..), newDrawing, moveDrawing)
 
 startState :: AppState
 startState =
     AppState    { window =          AppWindow   { bgColor = white
-                                                , fps =     15
+                                                , fps =     120
                                                 , display = InWindow "Trinity Animator" (winWidth, winHeight) (200, 200)
                                                 , width =   winWidth
                                                 , height =  winHeight }
@@ -22,7 +22,8 @@ startState =
                                     , bottomPanel
                                     , topPanel ] 
                 , drawings =        []
-                , currentDrawing =  Vector  {   pointList = [] }
+                , currentDrawing =  AppVector  { pointList = []
+                                            , smoothVersion = [] }
                 , drawTool =        newDrawing }
     where
         mainBGColor = makeColor (100/255) (100/255) (100/255) 1

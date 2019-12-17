@@ -7,7 +7,7 @@ import Graphics.Gloss.Data.ViewPort
 import Graphics.Gloss.Interface.Pure.Game(play)
 import Debug.Trace
 
-import State(AppState(..), Vector(..), chaikinOpen, AppWindow(..), DrawTool, newDrawing, isMakingNewDrawing, moveDrawing)
+import State(AppState(..), AppVector(..), chaikinOpen, AppWindow(..), DrawTool, newDrawing, isMakingNewDrawing, moveDrawing)
 import GUI(Element(..), DynamicElement(..), Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch)
 import GUIObjects(updateElement)
 import Init(startState)
@@ -16,22 +16,22 @@ import Event(handler)
 
 -- Draw all the vectors on the screen
 -- Color not implemented, so black for now
-drawVector :: Int -> Bool -> Vector -> Picture
+drawVector :: Int -> Bool -> AppVector -> Picture
 drawVector index smooth vector =
     if length (pointList smoothVec) == 0 || index == (length (pointList smoothVec)) - 1 then
         Blank
     else if length (pointList smoothVec) == 1 then
         translate x y (color black $ circleSolid 1)
     else
-        pictures [ vectorLine, drawVector (index + 1) Prelude.False smoothVec ]
+        pictures [ vectorLine ]--, drawVector (index + 1) Prelude.False smoothVec ]
     where
         smoothVec = if smooth == True then  -- only smooth the first time
-                        chaikinOpen 3 0.25 vector
+                        AppVector { pointList = smoothVersion vector, smoothVersion = smoothVersion vector}
                     else
                         vector
         (x, y) = (pointList smoothVec) !! index
-        myTwoPoints = take 2 (snd (splitAt index (pointList smoothVec)))
-        flippedPoints = map (\(x, y) -> (x, -y)) myTwoPoints
+        --myTwoPoints = take 2 (snd (splitAt index (pointList smoothVec)))
+        flippedPoints = map (\(x, y) -> (x, -y)) (pointList smoothVec)--myTwoPoints
         vectorLine = color black $ line
                         --trace ("Drawing line with points: " ++ (show flippedPoints)) 
                         flippedPoints
