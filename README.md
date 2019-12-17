@@ -36,11 +36,11 @@ To build do
 
 ```stack build```
 
-To run do
+To run, make sure architecture is set to 64 bit do
 
 ```stack exec trinity```
 
-or on Windows
+or on Windows, make sure the architecture is set to 32 bit and do
 
 ```.\run.bat```
 
