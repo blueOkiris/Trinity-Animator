@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 990a0c9fb143d96e62ca0f0462657275fe06d496fe16965fc7792d204e02465b
+-- hash: c26f11e1a159f297a856ee89219c249cc3ba4830d75d5b579acdeb8286867288
 
 name:           trinity
 version:        0.1.0.0
@@ -38,7 +38,10 @@ library
   hs-source-dirs:
       src
   build-depends:
-      base >=4.7 && <5
+      JuicyPixels
+    , JuicyPixels-extra
+    , JuicyPixels-util
+    , base >=4.7 && <5
     , deepseq
     , gloss
     , gloss-juicy
@@ -52,7 +55,10 @@ executable trinity
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      JuicyPixels
+    , JuicyPixels-extra
+    , JuicyPixels-util
+    , base >=4.7 && <5
     , deepseq
     , gloss
     , gloss-juicy

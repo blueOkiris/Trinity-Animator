@@ -9,7 +9,6 @@ import Debug.Trace
 
 import State(AppState(..), AppVector(..), chaikinOpen, AppWindow(..), DrawTool, newDrawing, isMakingNewDrawing, moveDrawing)
 import GUI(Element(..), DynamicElement(..), Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch)
-import GUIObjects(updateElement)
 import Init(startState)
 import DrawElement
 import Event(handler)
@@ -71,6 +70,7 @@ render state =
                         else
                             Blank
 
+
 updateAll :: Int -> Float -> AppState -> AppState
 updateAll index seconds state =
     if index == length (elements state) then
@@ -79,16 +79,21 @@ updateAll index seconds state =
         updateAll (index + 1) seconds newState
     where
         -- First, update the state and get a new updated element
-        (newState, updatedElement) = updateElement seconds state ((elements state) !! index)
+        element = (elements state) !! index
+        elemUpdateFunc = updateElem element
+
+        newState = elemUpdateFunc seconds state element index
 
         -- Then copy the updated element into the new state at the proper index
-        newElements = (fst (splitAt index (elements state))) ++ [updatedElement] ++ (snd (splitAt (index + 1) (elements state)))
-        newNewState = newState { elements = newElements }
+        --newElements = (fst (splitAt index (elements state))) ++ [updatedElement] ++ (snd (splitAt (index + 1) (elements state)))
+       -- newNewState = newState { elements = newElements }
 
 -- Update everything based on new state
 update :: Float -> AppState -> AppState
 update seconds state =
-    updateAll 0 seconds state        
+    newState
+    where
+        newState = updateAll 0 seconds state
 
 -- This initalizes the "play" command
 -- play is of type :: Display -> Color -> Int -> T -> (T -> Picture) -> (Event -> T -> T) -> (Float -> T -> T)

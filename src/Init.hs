@@ -1,39 +1,58 @@
 module Init where
 
 import Graphics.Gloss(Display(..), Picture(..), color, white, black, makeColor)
+import Debug.Trace
 
 import GUI  ( Element(..), DynamicElement(..)
-            , Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch )
-import GUIObjects(defaultElementEventHandler, drawPaneHandler, defaultElementUpdate)
-import State(AppState(..), AppVector(..), AppWindow(..), newDrawing, moveDrawing)
+            , Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch
+            , pngToPicture )
+import GUIObjects   ( defaultElementEventHandler, defaultElementUpdate
+                    , drawPaneHandler
+                    , updateDrawIconFunc, drawIconHandler
+                    , updateMoveIconFunc, moveIconHandler )
+import State(AppState(..), AppVector(..), AppWindow(..), newDrawing, isMakingNewDrawing, moveDrawing)
 
 startState :: AppState
 startState =
-    AppState    { window =          AppWindow   { bgColor = white
-                                                , fps =     120
-                                                , display = InWindow "Trinity Animator" (winWidth, winHeight) (200, 200)
-                                                , width =   winWidth
-                                                , height =  winHeight }
-                , elements =        [ windowContainer
-                                    , centerPanel 
-                                    , drawPane
-                                    , leftPanel
-                                    , rightPanel
-                                    , bottomPanel
-                                    , topPanel ] 
-                , drawings =        []
-                , currentDrawing =  AppVector  { pointList = []
-                                            , smoothVersion = [] }
-                , drawTool =        newDrawing }
+    AppState    { window =              AppWindow   { bgColor = white
+                                                    , fps =     framesPerSecond
+                                                    , display = InWindow "Trinity Animator" (winWidth, winHeight) (0, 0)
+                                                    , width =   winWidth
+                                                    , height =  winHeight }
+                , elements =            [ windowContainer
+                                        , centerPanel 
+                                        , drawPane
+                                        , leftPanel
+                                        , rightPanel
+                                        , bottomPanel
+                                        , topPanel
+                                        , drawIconElem
+                                        , moveIconElem ] 
+                , drawings =            []
+                , currentDrawing =      AppVector   { pointList = []
+                                                    , smoothVersion = [] }
+                , drawTool =            newDrawing
+                , drawIcon =            drawIconPic
+                , drawIconSelected =    drawIconSelectedPic
+                , moveIcon =            moveIconPic
+                , moveIconSelected =    moveIconSelectedPic }
     where
-        mainBGColor = makeColor (100/255) (100/255) (100/255) 1
-        panelBorderColor = makeColor (140/255) (140/255) (140/255) 1
-        panelBGColor = makeColor (230/255) (230/255) (230/255) 1
+        mainBGColor =       makeColor (100/255) (100/255)   (100/255)   1
+        panelBorderColor =  makeColor (140/255) (140/255)   (140/255)   1
+        panelBGColor =      makeColor (230/255) (230/255)   (230/255)   1
+        clearColor =        makeColor 0         0           0           0
 
-        winWidth = 1280
-        winHeight = 720
+        winWidth = 1920
+        winHeight = 1080
 
         baseMargin = 10
+
+        framesPerSecond = 10000
+        
+        drawIconPic =           id $! pngToPicture "images/iconset.png" (0, 0)      (512, 512) (32, 32)
+        drawIconSelectedPic =   id $! pngToPicture "images/iconset.png" (512, 0)    (512, 512) (32, 32)
+        moveIconPic =           id $! pngToPicture "images/iconset.png" (0, 512)    (512, 512) (32, 32)
+        moveIconSelectedPic =   id $! pngToPicture "images/iconset.png" (512, 512)  (512, 512) (32, 32)
 
         windowContainer =   
             DynamicElement  { elemCore = Element    { borderWidth =     0
@@ -108,7 +127,30 @@ startState =
                                                     , backImage =       Blank
                                                     , horAlignment =    alignCenter
                                                     , vertAlignment =   alignCenter
-                                                    , offset =          ((0, 0), (640, 480))
+                                                    , offset =          ((0, 0), (1280, 720))
                                                     , parent =          elemCore centerPanel }
                             , updateElem =      defaultElementUpdate
                             , keyEventElem =    drawPaneHandler }
+        drawIconElem =
+            DynamicElement  { elemCore = Element    { borderWidth =     3
+                                                    , borderColor =     clearColor
+                                                    , backColor =       clearColor
+                                                    , backImage =       drawIconPic
+                                                    , horAlignment =    alignLeft
+                                                    , vertAlignment =   alignTop
+                                                    , offset =          ((15, 15), (32, 32))
+                                                    , parent =          elemCore leftPanel }
+                            , updateElem =      updateDrawIconFunc
+                            , keyEventElem =    drawIconHandler }
+        moveIconElem =
+            DynamicElement  { elemCore = Element    { borderWidth =     3
+                                                    , borderColor =     clearColor
+                                                    , backColor =       clearColor
+                                                    , backImage =       moveIconPic
+                                                    , horAlignment =    alignLeft
+                                                    , vertAlignment =   alignTop
+                                                    , offset =          ((15 + 32 + 15, 15), (32, 32))
+                                                    , parent =          elemCore leftPanel }
+                            , updateElem =      updateMoveIconFunc
+                            , keyEventElem =    moveIconHandler }
+                            

@@ -1,6 +1,6 @@
 module State where
 
-import Graphics.Gloss(Color, Display)
+import Graphics.Gloss(Color, Display, Picture)
 import Debug.Trace
 
 import GUI(DynamicElement(..))
@@ -23,7 +23,7 @@ data AppWindow =
 
 -- A drawing object that can be displayed on the draw
 data AppVector =   
-    AppVector      { pointList         :: [(Float, Float)]
+    AppVector   { pointList         :: [(Float, Float)]
                 , smoothVersion     :: [(Float, Float)] }
 
 -- Smooth a vector's points
@@ -93,4 +93,8 @@ data AppState =
                 , elements          :: [DynamicElement AppState] 
                 , drawings          :: [AppVector] 
                 , currentDrawing    :: AppVector
-                , drawTool          :: DrawTool }
+                , drawTool          :: DrawTool
+                , drawIcon          :: Picture
+                , drawIconSelected  :: Picture
+                , moveIcon          :: Picture
+                , moveIconSelected  :: Picture }

@@ -11,6 +11,13 @@ packages:
       sha256: 914c08509bc3da4707d90e542b44833ca1a62abc83c2848f87df3d7a7a1d7e03
   original:
     hackage: gloss-juicy-0.2.3
+- completed:
+    hackage: JuicyPixels-util-0.2@sha256:54df721dc1194e3f1934a7696274e12479851d26bd440e92fce58af5c11b7fa9,929
+    pantry-tree:
+      size: 222
+      sha256: 0af4c927713168e03735d75e9b68fec8657bc5478b4fa1d294da9e4d463e044c
+  original:
+    hackage: JuicyPixels-util-0.2
 snapshots:
 - completed:
     size: 524804

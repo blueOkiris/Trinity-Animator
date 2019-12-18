@@ -4,7 +4,6 @@ import Graphics.Gloss.Interface.Pure.Game(Event(..), SpecialKey(..), KeyState(..
 
 import State(AppWindow(..), AppState(..))
 import GUI(Element(..), DynamicElement(..))
-import GUIObjects(applyHandler)
 
 handleAll :: Int -> Event -> AppState -> AppState
 handleAll index event state =
@@ -14,11 +13,14 @@ handleAll index event state =
         handleAll (index + 1) event newState
     where
         -- First, update the state and get a new updated element
-        (newState, updatedElement) = applyHandler event state ((elements state) !! index)
+        element = (elements state) !! index
+        elemEventHandler = keyEventElem element
+
+        newState = elemEventHandler event state element index
 
         -- Then copy the updated element into the new state at the proper index
-        newElements = (fst (splitAt index (elements state))) ++ [updatedElement] ++ (snd (splitAt (index + 1) (elements state)))
-        newNewState = newState { elements = newElements }
+        --newElements = (fst (splitAt index (elements state))) ++ [updatedElement] ++ (snd (splitAt (index + 1) (elements state)))
+        --newNewState = newState { elements = newElements }
 
 -- Handle events for things like keys and mouse clicks
 handler :: Event -> AppState -> AppState

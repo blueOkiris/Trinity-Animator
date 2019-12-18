@@ -24,6 +24,9 @@ dependencies:
 - gloss
 - gloss-juicy
 - deepseq
+- JuicyPixels
+- JuicyPixels-extra
+- JuicyPixels-util
 
 library:
   source-dirs: src
@@ -41,3 +44,6 @@ executables:
     - gloss
     - gloss-juicy
     - deepseq
+    - JuicyPixels
+    - JuicyPixels-extra
+    - JuicyPixels-util

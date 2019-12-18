@@ -9,43 +9,38 @@ import State(AppWindow(..), AppVector(..), chaikinOpen, AppState(..), DrawTool, 
 import GUI(Element(..), DynamicElement(..))
 import DrawElement(getX1, getX2, getY1, getY2)
 
--- A default option for update that does nothing
-defaultElementUpdate :: Float -> (AppState, Element) -> (AppState, Element)
-defaultElementUpdate seconds (state, elem) =
-    (state, elem)
-
 -- A default option for handlers that does nothing
-defaultElementEventHandler :: Event -> (AppState,Element) -> (AppState, Element)
-defaultElementEventHandler event (state, elem) =
-    (state, elem)
+defaultElementEventHandler :: Event -> AppState -> (DynamicElement AppState) -> Int -> AppState
+defaultElementEventHandler event state elem index =
+    state
 
 -- Allow for drawing to plane
-drawPaneHandler :: Event -> (AppState, Element) -> (AppState, Element)
-drawPaneHandler (EventKey (MouseButton btn) upOrDown modifier (x, y)) (state, elem) =
+drawPaneHandler :: Event -> AppState -> (DynamicElement AppState) -> Int -> AppState
+drawPaneHandler (EventKey (MouseButton btn) upOrDown modifier (x, y)) state elem index =
     -- First check to make sure we're actually in the element
-    if x >= fromIntegral (getX1 elem state) && x <= fromIntegral (getX2 elem state) 
-        && y >= fromIntegral (getY1 elem state) && y <=  fromIntegral (getY2 elem state) then
+    if x >= fromIntegral (getX1 (elemCore elem) state) && x <= fromIntegral (getX2 (elemCore elem) state) 
+        && y >= fromIntegral (getY1 (elemCore elem) state) && y <=  fromIntegral (getY2 (elemCore elem) state) then
             if btn == LeftButton then
                 if upOrDown == Down && (drawTool state) == newDrawing then
                     --trace "Down!"
-                    (state  { drawTool = changeToolDown 
-                            , currentDrawing = AppVector { pointList = [], smoothVersion = [] } }, elem)
+                    state   { drawTool = changeToolDown 
+                            , currentDrawing = AppVector { pointList = [], smoothVersion = [] } }
                 else if upOrDown == Up && ((drawTool state) == newDrawing || (drawTool state) == isMakingNewDrawing) then
                     --trace "Up!" 
-                    (state  {   drawTool = 
+                    state   {   drawTool = 
                                     --trace ("Draw Tool" ++ (show changeToolUp))
                                     changeToolUp
                             ,   drawings = newVectors
-                            ,   currentDrawing = smoothVec }, elem)
+                            ,   currentDrawing = smoothVec }
                             --,   currentDrawing = AppVector { pointList = [] } }, elem)
                 else
                     --trace "Other!" 
-                    (state, elem)
+                    state
             else
-                (state, elem)
+                state
     else
         --trace ("Not in plane! (x, y) = (" ++ (show (x, y)))
-        (state, elem)
+        state
     where
         changeToolDown =    if drawTool state == newDrawing then
                                 isMakingNewDrawing
@@ -57,43 +52,43 @@ drawPaneHandler (EventKey (MouseButton btn) upOrDown modifier (x, y)) (state, el
                                 drawTool state
                             
         currVec = currentDrawing state
-        smoothedVector = pointList $! (chaikinOpen 6 0.5 currVec)
+        smoothedVector = pointList $!  (chaikinOpen 7 0.25 currVec)
         smoothVec = currVec { smoothVersion = smoothedVector }
         newVectors =        --trace ("Adding AppVector with points, " ++ (show (pointList currVec)) ++ "\nSmoothing AppVector with points, " ++ (show (pointList smoothVec)))
                             ((drawings state) ++ [ smoothVec ])
-drawPaneHandler (EventMotion (x, y)) (state, elem) =
-    if x >= fromIntegral (getX1 elem state) && x <= fromIntegral (getX2 elem state) 
-        && y >= fromIntegral (getY1 elem state) && y <= fromIntegral (getY2 elem state) then
+drawPaneHandler (EventMotion (x, y)) state elem index =
+    if x >= fromIntegral (getX1 (elemCore elem) state) && x <= fromIntegral (getX2 (elemCore elem) state) 
+        && y >= fromIntegral (getY1 (elemCore elem) state) && y <= fromIntegral (getY2 (elemCore elem) state) then
             if drawTool state == isMakingNewDrawing then
-                if (round y) `mod` 4 == 0 || (round x) `mod` 4 == 0 then  -- Don't capture every point
-                    (state { currentDrawing = vectorWithPoint }, elem)
+                if (round y) `mod` 3 == 0 || (round x) `mod` 3 == 0 then  -- Don't capture every point
+                    state { currentDrawing = vectorWithPoint }
                 else
-                    (state, elem)
+                    state
             else
                 --trace ("(x, y) = (" ++ (show x) ++ ", " ++ (show y) ++ ")")
-                (state, elem)
+                state
     else
-        (state, elem)
+        state
     where
         currVec = currentDrawing state
         newPointList = (pointList currVec) ++ [ (x, y) ]
         vectorWithPoint = (currVec { pointList = newPointList })
-drawPaneHandler (EventKey (Char 'm') Up _ _) (state, elem) =
+drawPaneHandler (EventKey (Char 'm') Up _ _) state elem index =
     if drawTool state /= isMakingNewDrawing then
-        (state { drawTool = moveDrawing }, elem)
+        state { drawTool = moveDrawing }
     else
-        (state, elem)
-drawPaneHandler (EventKey (Char 'p') Up _ _) (state, elem) =
+        state
+drawPaneHandler (EventKey (Char 'p') Up _ _) state elem index =
     if drawTool state /= isMakingNewDrawing then
-        (state { drawTool = newDrawing }, elem)
+        state { drawTool = newDrawing }
     else
-        (state, elem)
-drawPaneHandler (EventKey (SpecialKey KeyDelete) Up _ _) (state, elem) =
+        state
+drawPaneHandler (EventKey (SpecialKey KeyDelete) Up _ _) state elem index =
     if drawTool state == moveDrawing then
-        (state  { drawings = drawingsWOutCurr
-                , currentDrawing = newCurrent }, elem)
+        state   { drawings = drawingsWOutCurr
+                , currentDrawing = newCurrent }
     else
-        (state, elem)
+        state
     where
         drawingsWOutCurr = fst (splitAt ((length (drawings state)) - 1) (drawings state))
         newCurrent = 
@@ -101,29 +96,81 @@ drawPaneHandler (EventKey (SpecialKey KeyDelete) Up _ _) (state, elem) =
                         AppVector { pointList = [], smoothVersion = [] }
                     else
                         drawingsWOutCurr !! ((length drawingsWOutCurr) - 1)
+drawPaneHandler _ state elem index =
+    state
 
-drawPaneHandler _ (state, elem) =
-    (state, elem)
+-- Button handling
+drawIconHandler :: Event -> AppState -> (DynamicElement AppState) -> Int -> AppState
+drawIconHandler (EventKey (MouseButton btn) upOrDown modifier (x, y)) state elem index =
+    if x >= fromIntegral (getX1 (elemCore elem) state) && x <= fromIntegral (getX2 (elemCore elem) state) 
+        && y >= fromIntegral (getY1 (elemCore elem) state) && y <= fromIntegral (getY2 (elemCore elem) state) then
+            if upOrDown == Down then
+                if (drawTool state) == newDrawing || (drawTool state) == isMakingNewDrawing then
+                    state
+                else
+                    state { drawTool = newDrawing }
+            else
+                state
+    else
+        state
+drawIconHandler _ state elem index =
+    state
+
+moveIconHandler :: Event -> AppState -> (DynamicElement AppState) -> Int -> AppState
+moveIconHandler (EventKey (MouseButton btn) upOrDown modifier (x, y)) state elem index =
+    if x >= fromIntegral (getX1 (elemCore elem) state) && x <= fromIntegral (getX2 (elemCore elem) state) 
+        && y >= fromIntegral (getY1 (elemCore elem) state) && y <= fromIntegral (getY2 (elemCore elem) state) then
+            if upOrDown == Down then
+                if (drawTool state) == moveDrawing then
+                    state
+                else
+                    state { drawTool = moveDrawing }
+            else
+                state
+    else
+        state
+moveIconHandler _ state elem index =
+    state
+
+-- A default option for update that does nothing
+defaultElementUpdate :: Float -> AppState ->  (DynamicElement AppState) -> Int -> AppState
+defaultElementUpdate seconds state elem index =
+    state
 
 -- Actually add a new drawing 
-drawPaneUpdate :: Float -> (AppState, Element) -> (AppState, Element)
-drawPaneUpdate seconds (state, elem) =
+drawPaneUpdate :: Float -> AppState -> (DynamicElement AppState) -> Int -> AppState
+drawPaneUpdate seconds state elem index =
     -- Smooth the drawing line
-    (state, elem)
+    state
 
--- Apply the update and event functions
--- Update an element inside a dynamic element based on the d.e.'s update function
-updateElement :: Float -> AppState -> (DynamicElement AppState) -> (AppState, (DynamicElement AppState))
-updateElement seconds state de =
-    (updatedState, de  { elemCore =    updatedCore })
+-- Change icons for button state
+updateDrawIconFunc :: Float -> AppState -> (DynamicElement AppState) -> Int -> AppState
+updateDrawIconFunc seconds state elem index =
+    --trace ("Draw Tool State: " ++ (show (drawTool state)))
+    newState
     where
-        updateFunc =    updateElem de
-        elem =          elemCore de
-        (updatedState, updatedCore) =   updateFunc seconds (state, elem)
+        bgImg = if (drawTool state) == newDrawing || (drawTool state) == isMakingNewDrawing then
+                    drawIconSelected state
+                else
+                    drawIcon state
+        newElemCore = (elemCore elem) { backImage = bgImg }
+        newDynElem = elem { elemCore = newElemCore }
+        
+        newElements = (fst (splitAt index (elements state))) ++ [newDynElem] ++ (snd (splitAt (index + 1) (elements state)))
+        newState = state { elements = newElements }
 
--- Handle events for and element
-applyHandler :: Event -> AppState -> (DynamicElement AppState) -> (AppState, (DynamicElement AppState))
-applyHandler event state elem =
-    (newState, elem { elemCore = handledElemCore })
+updateMoveIconFunc :: Float -> AppState -> (DynamicElement AppState) -> Int -> AppState
+updateMoveIconFunc seconds state elem index =
+    newState
     where
-        (newState, handledElemCore) = (keyEventElem elem) event (state, (elemCore elem))
+        bgImg = if (drawTool state) == moveDrawing then
+                    moveIconSelected state
+                else
+                    moveIcon state
+        newElemCore = (elemCore elem) { backImage = bgImg }
+        newDynElem = elem { elemCore = newElemCore }
+        
+        newElements = (fst (splitAt index (elements state))) ++ [newDynElem] ++ (snd (splitAt (index + 1) (elements state)))
+        newState = state { elements = newElements }
+
+    
