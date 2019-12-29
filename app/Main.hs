@@ -25,7 +25,7 @@ drawVector index smooth vector =
         pictures [ vectorLine ]--, drawVector (index + 1) Prelude.False smoothVec ]
     where
         smoothVec = if smooth == True then  -- only smooth the first time
-                        AppVector { pointList = smoothVersion vector, smoothVersion = smoothVersion vector}
+                        AppVector { pointList = smoothVersion vector, smoothVersion = smoothVersion vector, selectedPoint = -1 }
                     else
                         vector
         (x, y) = (pointList smoothVec) !! index
@@ -62,7 +62,11 @@ render state =
         -- Draw little dots at each point
         dots = pictures (map (\(x, y) -> translate x (-y) (color red (circleSolid 4))) (pointList (currentDrawing state)))
         currentVecPic = if drawTool state == newDrawing then
-                            (drawVector 0 True (currentDrawing state))
+                            --(drawVector 0 True (currentDrawing state))
+                            if (length $ drawings state) >= (selectedDrawing state) then
+                                Blank
+                            else
+                                drawVector 0 True $ (drawings state) !! (selectedDrawing state)
                         else if drawTool state == isMakingNewDrawing then
                             (drawVector 0 Prelude.False (currentDrawing state))
                         else if drawTool state == moveDrawing then

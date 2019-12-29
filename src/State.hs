@@ -8,10 +8,11 @@ import GUI(DynamicElement(..))
 -- "State" of app, but not that state
 -- Like current tool stuff
 type DrawTool = Int
-newDrawing, isMakingNewDrawing, moveDrawing :: DrawTool
+newDrawing, isMakingNewDrawing, moveDrawing, isMovingDrawing :: DrawTool
 newDrawing = 0
 isMakingNewDrawing = 1
 moveDrawing = 2
+isMovingDrawing = 3
 
 -- Window type that stores info about the actual running of the app
 data AppWindow = 
@@ -24,7 +25,8 @@ data AppWindow =
 -- A drawing object that can be displayed on the draw
 data AppVector =   
     AppVector   { pointList         :: [(Float, Float)]
-                , smoothVersion     :: [(Float, Float)] }
+                , smoothVersion     :: [(Float, Float)]
+                , selectedPoint     :: Int }
 
 -- Smooth a vector's points
 chaikin         :: Int -> Float -> Bool -> AppVector -> AppVector
@@ -40,7 +42,7 @@ chaikinOpen iterations ratio shape =
 lerp a b f =
     a + f * (b - a)
 chaikinCut ratio (ax, ay) (bx, by) =
-    AppVector  { pointList =   [ (n1x, n1y), (n2x, n2y) ], smoothVersion = [ (n1x, n1y), (n2x, n2y) ] }
+    AppVector  { pointList =   [ (n1x, n1y), (n2x, n2y) ], smoothVersion = [ (n1x, n1y), (n2x, n2y) ], selectedPoint = -1 }
     where
         actRatio =  if ratio > 0.5 then
                         1 - ratio
@@ -66,7 +68,7 @@ chaikin iterations ratio close shape =
         newPoints = --trace ("Master list: " ++ (show $ pointList shape) ++ "\nNum corners: " ++ (show numCorners)) 
                         (buildNewShape ratio 0 numCorners (pointList shape) close)
         next = --trace ("Final Shape: " ++ (show newPoints))
-                    (AppVector   { pointList = newPoints, smoothVersion = newPoints })
+                    (AppVector   { pointList = newPoints, smoothVersion = newPoints, selectedPoint = -1 })
 buildNewShape ratio i numCorners masterList close =
     if i < numCorners then
         updateList ++ (buildNewShape ratio (i + 1) numCorners masterList close)
@@ -97,4 +99,5 @@ data AppState =
                 , drawIcon          :: Picture
                 , drawIconSelected  :: Picture
                 , moveIcon          :: Picture
-                , moveIconSelected  :: Picture }
+                , moveIconSelected  :: Picture
+                , selectedDrawing   :: Int }

@@ -45,6 +45,7 @@ imageCreator path =
         pixelRenderer x y = PixelRGBA8 (fromIntegral x) (fromIntegral y) 128 255
 
 -- Function to load image data from a file
+-- Should only be done at start to avoid problems
 {-# NOINLINE pngToPicture #-}
 pngToPicture :: FilePath -> (Int, Int) -> (Int, Int) -> (Int, Int) -> Picture
 pngToPicture fname (sx, sy) (sw, sh) (w, h) =

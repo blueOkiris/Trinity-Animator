@@ -30,12 +30,14 @@ startState =
                                         , moveIconElem ] 
                 , drawings =            []
                 , currentDrawing =      AppVector   { pointList = []
-                                                    , smoothVersion = [] }
+                                                    , smoothVersion = [] 
+                                                    , selectedPoint = -1 }
                 , drawTool =            newDrawing
                 , drawIcon =            drawIconPic
                 , drawIconSelected =    drawIconSelectedPic
                 , moveIcon =            moveIconPic
-                , moveIconSelected =    moveIconSelectedPic }
+                , moveIconSelected =    moveIconSelectedPic 
+                , selectedDrawing =     0 }
     where
         mainBGColor =       makeColor (100/255) (100/255)   (100/255)   1
         panelBorderColor =  makeColor (140/255) (140/255)   (140/255)   1
