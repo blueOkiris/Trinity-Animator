@@ -5,7 +5,8 @@ import Graphics.Gloss.Interface.Pure.Game(Event(..), SpecialKey(..), KeyState(..
 import Debug.Trace
 import Control.DeepSeq
 
-import State    ( AppWindow(..), AppVector(..), AppState(..), DrawTool, chaikinOpen
+import State    ( AppWindow(..), AppVector(..), AppState(..), DrawTool
+                , chaikinOpen, vectorClosestToPoint
                 , newDrawing, isMakingNewDrawing, moveDrawing, isMovingDrawing )
 import GUI(Element(..), DynamicElement(..))
 import DrawElement(getX1, getX2, getY1, getY2)
@@ -35,6 +36,7 @@ drawPaneHandler (EventKey (MouseButton btn) upOrDown modifier (x, y)) state elem
                             ,   currentDrawing = smoothVec }
                             --,   currentDrawing = AppVector { pointList = [] } }, elem)
                 else if upOrDown == Down && (drawTool state) == moveDrawing then
+                    trace ("New Selected Drawing: " ++ (show vecSelec))
                     state   { drawTool = changeToolDown
                             , selectedDrawing = vecSelec }
                 else if upOrDown == Up && (drawTool state) == isMovingDrawing then
@@ -67,7 +69,7 @@ drawPaneHandler (EventKey (MouseButton btn) upOrDown modifier (x, y)) state elem
         newVectors =        --trace ("Adding AppVector with points, " ++ (show (pointList currVec)) ++ "\nSmoothing AppVector with points, " ++ (show (pointList smoothVec)))
                             ((drawings state) ++ [ smoothVec ])
         
-        vecSelec = selectedDrawing state
+        vecSelec = vectorClosestToPoint state (x, y)--selectedDrawing state
 drawPaneHandler (EventMotion (x, y)) state elem index =
     if x >= fromIntegral (getX1 (elemCore elem) state) && x <= fromIntegral (getX2 (elemCore elem) state) 
         && y >= fromIntegral (getY1 (elemCore elem) state) && y <= fromIntegral (getY2 (elemCore elem) state) then
@@ -178,7 +180,7 @@ updateMoveIconFunc :: Float -> AppState -> (DynamicElement AppState) -> Int -> A
 updateMoveIconFunc seconds state elem index =
     newState
     where
-        bgImg = if (drawTool state) == moveDrawing then
+        bgImg = if (drawTool state) == moveDrawing || (drawTool state) == isMovingDrawing then
                     moveIconSelected state
                 else
                     moveIcon state

@@ -7,7 +7,8 @@ import Graphics.Gloss.Data.ViewPort
 import Graphics.Gloss.Interface.Pure.Game(play)
 import Debug.Trace
 
-import State(AppState(..), AppVector(..), chaikinOpen, AppWindow(..), DrawTool, newDrawing, isMakingNewDrawing, moveDrawing)
+import State    ( AppState(..), AppVector(..), AppWindow(..), DrawTool, chaikinOpen
+                , newDrawing, isMakingNewDrawing, moveDrawing, isMovingDrawing )
 import GUI(Element(..), DynamicElement(..), Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch)
 import Init(startState)
 import DrawElement
@@ -60,17 +61,26 @@ render state =
         vectorPictures = map (drawVector 0 True) (drawings state)
 
         -- Draw little dots at each point
-        dots = pictures (map (\(x, y) -> translate x (-y) (color red (circleSolid 4))) (pointList (currentDrawing state)))
+        dots =  if (length $ drawings state) <= (selectedDrawing state) then
+                    Blank
+                else
+                    pictures (map (\(x, y) -> translate x (-y) (color red (circleSolid 4))) 
+                        (pointList ((drawings state) !! (selectedDrawing state))))
         currentVecPic = if drawTool state == newDrawing then
                             --(drawVector 0 True (currentDrawing state))
-                            if (length $ drawings state) >= (selectedDrawing state) then
+                            if (length $ drawings state) <= (selectedDrawing state) then
                                 Blank
                             else
                                 drawVector 0 True $ (drawings state) !! (selectedDrawing state)
                         else if drawTool state == isMakingNewDrawing then
                             (drawVector 0 Prelude.False (currentDrawing state))
-                        else if drawTool state == moveDrawing then
-                            pictures [ drawVector 0 True (currentDrawing state), dots ]
+                        else if (drawTool state) == moveDrawing || (drawTool state) == isMovingDrawing then
+                            if (length $ drawings state) <= (selectedDrawing state) then
+                                Blank
+                            --dots
+                            else
+                                pictures [ drawVector 0 True ((drawings state) !! (selectedDrawing state)), dots ]
+                            --pictures [ drawVector 0 True (currentDrawing state), dots ]
                         else
                             Blank
 

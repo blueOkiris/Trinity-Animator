@@ -2,6 +2,7 @@ module State where
 
 import Graphics.Gloss(Color, Display, Picture)
 import Debug.Trace
+import Data.List(elemIndex)
 
 import GUI(DynamicElement(..))
 
@@ -101,3 +102,24 @@ data AppState =
                 , moveIcon          :: Picture
                 , moveIconSelected  :: Picture
                 , selectedDrawing   :: Int }
+
+sqr :: Float -> Float
+sqr x =
+    x * x
+
+pointDistance :: (Float, Float) -> (Float, Float) -> Float
+pointDistance (x1, y1) (x2, y2) =
+    sqrt $ (sqr (x1 - x2)) + (sqr (y1 - y2))
+
+vectorDistances :: (Float, Float) -> [(Float, Float)] -> [Float]
+vectorDistances comparePoint vectorPoints =
+    map (pointDistance comparePoint) vectorPoints
+
+vectorClosestToPoint :: AppState -> (Float, Float) -> Int
+vectorClosestToPoint state comparePoint =
+    minDistVector
+    where
+        pointLists = map pointList (drawings state)
+        vecDistances = map (vectorDistances comparePoint) pointLists
+        minDistances = map minimum vecDistances
+        minDistVector = maybe 0 id $ elemIndex (minimum minDistances) minDistances
