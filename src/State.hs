@@ -14,6 +14,7 @@ newDrawing = 0
 isMakingNewDrawing = 1
 moveDrawing = 2
 isMovingDrawing = 3
+noState = 4
 
 -- Window type that stores info about the actual running of the app
 data AppWindow = 
@@ -101,7 +102,8 @@ data AppState =
                 , drawIconSelected  :: Picture
                 , moveIcon          :: Picture
                 , moveIconSelected  :: Picture
-                , selectedDrawing   :: Int }
+                , selectedDrawing   :: Int
+                , clickedDownPoint  :: (Float, Float) }
 
 sqr :: Float -> Float
 sqr x =
@@ -121,5 +123,6 @@ vectorClosestToPoint state comparePoint =
     where
         pointLists = map pointList (drawings state)
         vecDistances = map (vectorDistances comparePoint) pointLists
-        minDistances = map minimum vecDistances
+        minDistances =  map minimum
+                            (filter (not . null) vecDistances)
         minDistVector = maybe 0 id $ elemIndex (minimum minDistances) minDistances

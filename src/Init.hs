@@ -37,7 +37,8 @@ startState =
                 , drawIconSelected =    drawIconSelectedPic
                 , moveIcon =            moveIconPic
                 , moveIconSelected =    moveIconSelectedPic 
-                , selectedDrawing =     0 }
+                , selectedDrawing =     0 
+                , clickedDownPoint =    (0, 0) }
     where
         mainBGColor =       makeColor (100/255) (100/255)   (100/255)   1
         panelBorderColor =  makeColor (140/255) (140/255)   (140/255)   1

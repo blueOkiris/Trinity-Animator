@@ -7,7 +7,7 @@ import Control.DeepSeq
 
 import State    ( AppWindow(..), AppVector(..), AppState(..), DrawTool
                 , chaikinOpen, vectorClosestToPoint
-                , newDrawing, isMakingNewDrawing, moveDrawing, isMovingDrawing )
+                , newDrawing, isMakingNewDrawing, moveDrawing, isMovingDrawing, noState )
 import GUI(Element(..), DynamicElement(..))
 import DrawElement(getX1, getX2, getY1, getY2)
 
@@ -36,9 +36,10 @@ drawPaneHandler (EventKey (MouseButton btn) upOrDown modifier (x, y)) state elem
                             ,   currentDrawing = smoothVec }
                             --,   currentDrawing = AppVector { pointList = [] } }, elem)
                 else if upOrDown == Down && (drawTool state) == moveDrawing then
-                    trace ("New Selected Drawing: " ++ (show vecSelec))
+                    --trace ("New Selected Drawing: " ++ (show vecSelec))
                     state   { drawTool = changeToolDown
-                            , selectedDrawing = vecSelec }
+                            , selectedDrawing = vecSelec 
+                            , clickedDownPoint = (x, y) }
                 else if upOrDown == Up && (drawTool state) == isMovingDrawing then
                     state   { drawTool = changeToolUp }
                 else
@@ -75,9 +76,12 @@ drawPaneHandler (EventMotion (x, y)) state elem index =
         && y >= fromIntegral (getY1 (elemCore elem) state) && y <= fromIntegral (getY2 (elemCore elem) state) then
             if drawTool state == isMakingNewDrawing then
                 if (round y) `mod` 3 == 0 || (round x) `mod` 3 == 0 then  -- Don't capture every point
-                    state { currentDrawing = vectorWithPoint }
+                    state { currentDrawing =    vectorWithPoint }
                 else
                     state
+            else if drawTool state == isMovingDrawing then
+                state   { drawings =            updatedDrawings
+                        , clickedDownPoint =    (x, y) }
             else
                 --trace ("(x, y) = (" ++ (show x) ++ ", " ++ (show y) ++ ")")
                 state
@@ -90,6 +94,23 @@ drawPaneHandler (EventMotion (x, y)) state elem index =
                                 currVec
                             else
                                 (currVec { pointList = newPointList })
+                                
+        oldPosition =   --trace ("Old Click: " ++ (show $ clickedDownPoint state))
+                        (clickedDownPoint state)
+        currentSel = if length (drawings state) <= (selectedDrawing state) then
+                        -- Uhhhhhhh idk
+                        AppVector { pointList = [], smoothVersion = [], selectedPoint = -1 }
+                    else
+                        (drawings state) !! (selectedDrawing state)
+        xMotion = x - (fst oldPosition)
+        yMotion =   --trace ("Moved Pos X: " ++ (show xMotion))
+                    y - (snd oldPosition)
+        updatedSelPoints = map (\(px, py) -> (px + xMotion, py + yMotion)) (pointList currentSel)
+        updatedSel = currentSel { pointList = updatedSelPoints }
+        updatedSelSmooth = updatedSel { smoothVersion = pointList $! (chaikinOpen 5 0.25 updatedSel) }
+        updatedDrawings = (fst $ splitAt (selectedDrawing state) (drawings state)) 
+                            ++ [ updatedSelSmooth ] ++
+                                (snd $ splitAt ((selectedDrawing state) + 1) (drawings state))
 drawPaneHandler (EventKey (Char 'm') Up _ _) state elem index =
     if drawTool state /= isMakingNewDrawing then
         state { drawTool = moveDrawing }
@@ -103,16 +124,22 @@ drawPaneHandler (EventKey (Char 'p') Up _ _) state elem index =
 drawPaneHandler (EventKey (SpecialKey KeyDelete) Up _ _) state elem index =
     if drawTool state == moveDrawing then
         state   { drawings = drawingsWOutCurr
-                , currentDrawing = newCurrent }
+                , currentDrawing = newCurrent 
+                , selectedDrawing = newSelection }
     else
         state
     where
-        drawingsWOutCurr = fst (splitAt ((length (drawings state)) - 1) (drawings state))
+        drawingsWOutCurr =  (fst (splitAt (selectedDrawing state) (drawings state)))
+                                ++ (snd (splitAt ((selectedDrawing state) + 1) (drawings state)))
         newCurrent = 
                     if length drawingsWOutCurr == 0 then
                         AppVector { pointList = [], smoothVersion = [], selectedPoint = -1 }
                     else
                         drawingsWOutCurr !! ((length drawingsWOutCurr) - 1)
+        newSelection =  if length drawingsWOutCurr == 0 then
+                            0
+                        else
+                            (length drawingsWOutCurr) - 1
 drawPaneHandler _ state elem index =
     state
 
