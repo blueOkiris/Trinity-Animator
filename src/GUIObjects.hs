@@ -26,15 +26,19 @@ drawPaneHandler (EventKey (MouseButton btn) upOrDown modifier (x, y)) state elem
                 if upOrDown == Down && ((drawTool state) == newDrawing || (drawTool state) == isMakingNewDrawing) then
                     --trace "Down!"
                     state   { drawTool = changeToolDown 
-                            , currentDrawing = AppVector { pointList = [], smoothVersion = [], selectedPoint = -1 } }
+                            , currentDrawing = AppVector { pointList = [], smoothVersion = [], selectedPoint = 0 } }
                 else if upOrDown == Up && ((drawTool state) == newDrawing || (drawTool state) == isMakingNewDrawing) then
                     --trace "Up!" 
-                    state   {   drawTool = 
-                                    --trace ("Draw Tool" ++ (show changeToolUp))
-                                    changeToolUp
-                            ,   drawings = newVectors
-                            ,   currentDrawing = smoothVec }
-                            --,   currentDrawing = AppVector { pointList = [] } }, elem)
+                    if (length $ pointList currVec) <= 1 then
+                        state   { drawTool = changeToolUp 
+                                , currentDrawing = AppVector { pointList = [], smoothVersion = [], selectedPoint = 0 } }
+                    else
+                        state   {   drawTool = 
+                                        --trace ("Draw Tool" ++ (show changeToolUp))
+                                        changeToolUp
+                                ,   drawings = newVectors
+                                ,   currentDrawing = smoothVec }
+                                --,   currentDrawing = AppVector { pointList = [] } }, elem)
                 else if upOrDown == Down && (drawTool state) == moveDrawing then
                     --trace ("New Selected Drawing: " ++ (show vecSelec))
                     state   { drawTool = changeToolDown
@@ -64,7 +68,7 @@ drawPaneHandler (EventKey (MouseButton btn) upOrDown modifier (x, y)) state elem
                             else
                                 drawTool state
                             
-        currVec = currentDrawing state
+        currVec =   currentDrawing state
         smoothedVector = pointList $!  (chaikinOpen 5 0.25 currVec)
         smoothVec = currVec { smoothVersion = smoothedVector }
         newVectors =        --trace ("Adding AppVector with points, " ++ (show (pointList currVec)) ++ "\nSmoothing AppVector with points, " ++ (show (pointList smoothVec)))
@@ -97,9 +101,9 @@ drawPaneHandler (EventMotion (x, y)) state elem index =
                                 
         oldPosition =   --trace ("Old Click: " ++ (show $ clickedDownPoint state))
                         (clickedDownPoint state)
-        currentSel = if length (drawings state) <= (selectedDrawing state) then
+        currentSel = if (selectedDrawing state) >= (length (drawings state)) then
                         -- Uhhhhhhh idk
-                        AppVector { pointList = [], smoothVersion = [], selectedPoint = -1 }
+                        AppVector { pointList = [], smoothVersion = [], selectedPoint = 0 }
                     else
                         (drawings state) !! (selectedDrawing state)
         xMotion = x - (fst oldPosition)
@@ -133,7 +137,7 @@ drawPaneHandler (EventKey (SpecialKey KeyDelete) Up _ _) state elem index =
                                 ++ (snd (splitAt ((selectedDrawing state) + 1) (drawings state)))
         newCurrent = 
                     if length drawingsWOutCurr == 0 then
-                        AppVector { pointList = [], smoothVersion = [], selectedPoint = -1 }
+                        AppVector { pointList = [], smoothVersion = [], selectedPoint = 0 }
                     else
                         drawingsWOutCurr !! ((length drawingsWOutCurr) - 1)
         newSelection =  if length drawingsWOutCurr == 0 then

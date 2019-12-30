@@ -31,7 +31,7 @@ startState =
                 , drawings =            []
                 , currentDrawing =      AppVector   { pointList = []
                                                     , smoothVersion = [] 
-                                                    , selectedPoint = -1 }
+                                                    , selectedPoint = 0 }
                 , drawTool =            newDrawing
                 , drawIcon =            drawIconPic
                 , drawIconSelected =    drawIconSelectedPic

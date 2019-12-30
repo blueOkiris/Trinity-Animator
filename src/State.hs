@@ -44,7 +44,7 @@ chaikinOpen iterations ratio shape =
 lerp a b f =
     a + f * (b - a)
 chaikinCut ratio (ax, ay) (bx, by) =
-    AppVector  { pointList =   [ (n1x, n1y), (n2x, n2y) ], smoothVersion = [ (n1x, n1y), (n2x, n2y) ], selectedPoint = -1 }
+    AppVector  { pointList =   [ (n1x, n1y), (n2x, n2y) ], smoothVersion = [ (n1x, n1y), (n2x, n2y) ], selectedPoint = 0 }
     where
         actRatio =  if ratio > 0.5 then
                         1 - ratio
@@ -70,7 +70,7 @@ chaikin iterations ratio close shape =
         newPoints = --trace ("Master list: " ++ (show $ pointList shape) ++ "\nNum corners: " ++ (show numCorners)) 
                         (buildNewShape ratio 0 numCorners (pointList shape) close)
         next = --trace ("Final Shape: " ++ (show newPoints))
-                    (AppVector   { pointList = newPoints, smoothVersion = newPoints, selectedPoint = -1 })
+                    (AppVector   { pointList = newPoints, smoothVersion = newPoints, selectedPoint = 0 })
 buildNewShape ratio i numCorners masterList close =
     if i < numCorners then
         updateList ++ (buildNewShape ratio (i + 1) numCorners masterList close)

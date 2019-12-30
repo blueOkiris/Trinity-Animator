@@ -13,6 +13,7 @@ import GUI(Element(..), DynamicElement(..), Alignment, alignCenter, alignLeft, a
 import Init(startState)
 import DrawElement
 import Event(handler)
+import System.IO(stdout, hSetBuffering, BufferMode(..))
 
 -- Draw all the vectors on the screen
 -- Color not implemented, so black for now
@@ -26,7 +27,7 @@ drawVector index smooth vector =
         pictures [ vectorLine ]--, drawVector (index + 1) Prelude.False smoothVec ]
     where
         smoothVec = if smooth == True then  -- only smooth the first time
-                        AppVector { pointList = smoothVersion vector, smoothVersion = smoothVersion vector, selectedPoint = -1 }
+                        AppVector { pointList = smoothVersion vector, smoothVersion = smoothVersion vector, selectedPoint = 0 }
                     else
                         vector
         (x, y) = (pointList smoothVec) !! index
@@ -61,26 +62,37 @@ render state =
         vectorPictures = map (drawVector 0 True) (drawings state)
 
         -- Draw little dots at each point
-        dots =  if (length $ drawings state) <= (selectedDrawing state) then
-                    Blank
+        -- (not . null) x === \x -> not (null x)
+        selDraw =   if (selectedDrawing state) >= (length (drawings state)) then
+                        AppVector { pointList = [(0, 0), (0, 0)], smoothVersion = [(0, 0), (0, 0)], selectedPoint = 10 }
+                    else
+                        (drawings state) !! (selectedDrawing state)
+        dotsAllRed =    if (selectedDrawing state) >= (length (drawings state)) then
+                            Blank
+                        else
+                            pictures $ map (\(x, y) -> translate x (-y) (color red (circleSolid 4))) (pointList selDraw)
+        (selX, selY) =  if (selectedPoint selDraw) >= (length $ pointList selDraw) then
+                            (0, 0)
+                        else
+                            (pointList selDraw) !! (selectedPoint selDraw)
+        dots =  if selX /= 0 then
+                    pictures [ dotsAllRed, translate selX (-selY) (color green $ circleSolid 8) ]
                 else
-                    pictures (map (\(x, y) -> translate x (-y) (color red (circleSolid 4))) 
-                        (pointList ((drawings state) !! (selectedDrawing state))))
+                    Blank
         currentVecPic = if drawTool state == newDrawing then
                             --(drawVector 0 True (currentDrawing state))
-                            if (length $ drawings state) <= (selectedDrawing state) then
+                            if (selectedDrawing state) >= (length $ drawings state) then
                                 Blank
                             else
                                 drawVector 0 True $ (drawings state) !! (selectedDrawing state)
                         else if drawTool state == isMakingNewDrawing then
                             (drawVector 0 Prelude.False (currentDrawing state))
                         else if (drawTool state) == moveDrawing || (drawTool state) == isMovingDrawing then
-                            if (length $ drawings state) <= (selectedDrawing state) then
+                            if (selectedDrawing state) >= (length (drawings state)) then
                                 Blank
-                            --dots
                             else
                                 pictures [ drawVector 0 True ((drawings state) !! (selectedDrawing state)), dots ]
-                            --pictures [ drawVector 0 True (currentDrawing state), dots ]
+                                --pictures [ drawVector 0 True (currentDrawing state), dots ]
                         else
                             Blank
 
@@ -105,9 +117,20 @@ updateAll index seconds state =
 -- Update everything based on new state
 update :: Float -> AppState -> AppState
 update seconds state =
-    newState
+    fixedState
     where
-        newState = updateAll 0 seconds state
+        updatedState =  --trace 
+                    --    ("Num Drawings: " ++ (show (length $ drawings state)) 
+                    --        ++ "\nSelected Drawing: " ++ (show (selectedDrawing state))
+                    --            ++ "\nState: " ++ (show (drawTool state)))
+                    updateAll 0 seconds state
+        drawingsWOutEmptied = filter (\drawing -> (length $ pointList drawing) > 1) (drawings state)
+        cleanedUpState = updatedState { drawings = drawingsWOutEmptied }
+        fixedState = cleanedUpState { selectedDrawing = if (selectedDrawing cleanedUpState) >= length (drawings cleanedUpState) 
+                                                            || (selectedDrawing cleanedUpState) < 0 then
+                                                                0
+                                                        else
+                                                            selectedDrawing cleanedUpState }
 
 -- This initalizes the "play" command
 -- play is of type :: Display -> Color -> Int -> T -> (T -> Picture) -> (Event -> T -> T) -> (Float -> T -> T)
@@ -120,8 +143,10 @@ update seconds state =
 --  * event handler
 --  * update function
 main :: IO ()
-main = 
-    play disp bg numFrames startState render handler update
+main =
+    do
+        hSetBuffering stdout NoBuffering
+        play disp bg numFrames startState render handler update
     where
         disp =      display $ window startState
         bg =        bgColor $ window startState
