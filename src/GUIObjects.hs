@@ -125,6 +125,8 @@ drawPaneHandler (EventKey (Char 'p') Up _ _) state elem index =
         state { drawTool = newDrawing }
     else
         state
+drawPaneHandler (EventKey (SpecialKey KeyEsc) Up _ _) state elem index =
+    state { drawTool = noState }
 drawPaneHandler (EventKey (SpecialKey KeyDelete) Up _ _) state elem index =
     if drawTool state == moveDrawing then
         state   { drawings = drawingsWOutCurr

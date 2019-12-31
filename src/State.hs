@@ -9,7 +9,7 @@ import GUI(DynamicElement(..))
 -- "State" of app, but not that state
 -- Like current tool stuff
 type DrawTool = Int
-newDrawing, isMakingNewDrawing, moveDrawing, isMovingDrawing :: DrawTool
+newDrawing, isMakingNewDrawing, moveDrawing, isMovingDrawing, noState :: DrawTool
 newDrawing = 0
 isMakingNewDrawing = 1
 moveDrawing = 2
