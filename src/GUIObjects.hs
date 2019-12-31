@@ -7,7 +7,7 @@ import Control.DeepSeq
 
 import State    ( AppWindow(..), AppVector(..), AppState(..), DrawTool
                 , chaikinOpen, vectorClosestToPoint
-                , newDrawing, isMakingNewDrawing, moveDrawing, isMovingDrawing, noState )
+                , newDrawing, isMakingNewDrawing, moveDrawing, isMovingDrawing, noState, editDrawing, isEditingDrawing )
 import GUI(Element(..), DynamicElement(..))
 import DrawElement(getX1, getX2, getY1, getY2)
 
@@ -166,6 +166,22 @@ drawIconHandler (EventKey (MouseButton btn) upOrDown modifier (x, y)) state elem
 drawIconHandler _ state elem index =
     state
 
+editIconHandler :: Event -> AppState -> (DynamicElement AppState) -> Int -> AppState
+editIconHandler (EventKey (MouseButton btn) upOrDown modifier (x, y)) state elem index =
+    if x >= fromIntegral (getX1 (elemCore elem) state) && x <= fromIntegral (getX2 (elemCore elem) state) 
+        && y >= fromIntegral (getY1 (elemCore elem) state) && y <= fromIntegral (getY2 (elemCore elem) state) then
+            if upOrDown == Down then
+                if (drawTool state) == editDrawing then
+                    state
+                else
+                    state { drawTool = editDrawing }
+            else
+                state
+    else
+        state
+editIconHandler _ state elem index =
+    state
+
 moveIconHandler :: Event -> AppState -> (DynamicElement AppState) -> Int -> AppState
 moveIconHandler (EventKey (MouseButton btn) upOrDown modifier (x, y)) state elem index =
     if x >= fromIntegral (getX1 (elemCore elem) state) && x <= fromIntegral (getX2 (elemCore elem) state) 
@@ -217,6 +233,20 @@ updateMoveIconFunc seconds state elem index =
                     moveIconSelected state
                 else
                     moveIcon state
+        newElemCore = (elemCore elem) { backImage = bgImg }
+        newDynElem = elem { elemCore = newElemCore }
+        
+        newElements = (fst (splitAt index (elements state))) ++ [newDynElem] ++ (snd (splitAt (index + 1) (elements state)))
+        newState = state { elements = newElements }
+
+updateEditIconFunc :: Float -> AppState -> (DynamicElement AppState) -> Int -> AppState
+updateEditIconFunc seconds state elem index =
+    newState
+    where
+        bgImg = if (drawTool state) == editDrawing || (drawTool state) == isEditingDrawing then
+                    editIconSelected state
+                else
+                    editIcon state
         newElemCore = (elemCore elem) { backImage = bgImg }
         newDynElem = elem { elemCore = newElemCore }
         

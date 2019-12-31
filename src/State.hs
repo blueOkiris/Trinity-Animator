@@ -9,12 +9,14 @@ import GUI(DynamicElement(..))
 -- "State" of app, but not that state
 -- Like current tool stuff
 type DrawTool = Int
-newDrawing, isMakingNewDrawing, moveDrawing, isMovingDrawing, noState :: DrawTool
-newDrawing = 0
-isMakingNewDrawing = 1
-moveDrawing = 2
-isMovingDrawing = 3
-noState = 4
+newDrawing, isMakingNewDrawing, moveDrawing, isMovingDrawing, noState, editDrawing, isEditingDrawing :: DrawTool
+newDrawing =            0
+isMakingNewDrawing =    1
+moveDrawing =           2
+isMovingDrawing =       3
+noState =               4
+editDrawing =           5
+isEditingDrawing =      6
 
 -- Window type that stores info about the actual running of the app
 data AppWindow = 
@@ -102,6 +104,8 @@ data AppState =
                 , drawIconSelected  :: Picture
                 , moveIcon          :: Picture
                 , moveIconSelected  :: Picture
+                , editIcon          :: Picture
+                , editIconSelected  :: Picture
                 , selectedDrawing   :: Int
                 , clickedDownPoint  :: (Float, Float) }
 

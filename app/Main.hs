@@ -8,7 +8,7 @@ import Graphics.Gloss.Interface.IO.Game(playIO)
 import Debug.Trace
 
 import State    ( AppState(..), AppVector(..), AppWindow(..), DrawTool, chaikinOpen
-                , newDrawing, isMakingNewDrawing, moveDrawing, isMovingDrawing )
+                , newDrawing, isMakingNewDrawing, moveDrawing, isMovingDrawing, editDrawing, isEditingDrawing )
 import GUI(Element(..), DynamicElement(..), Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch)
 import Init(startState)
 import DrawElement
@@ -87,12 +87,13 @@ render state =
                                 drawVector 0 True $ (drawings state) !! (selectedDrawing state)
                         else if drawTool state == isMakingNewDrawing then
                             (drawVector 0 Prelude.False (currentDrawing state))
-                        else if (drawTool state) == moveDrawing || (drawTool state) == isMovingDrawing then
-                            if (selectedDrawing state) >= (length (drawings state)) then
-                                Blank
-                            else
-                                pictures [ drawVector 0 True ((drawings state) !! (selectedDrawing state)), dots ]
-                                --pictures [ drawVector 0 True (currentDrawing state), dots ]
+                        else if (drawTool state) == moveDrawing || (drawTool state) == isMovingDrawing
+                            || (drawTool state) == editDrawing || (drawTool state) == isEditingDrawing then
+                                if (selectedDrawing state) >= (length (drawings state)) then
+                                    Blank
+                                else
+                                    pictures [ drawVector 0 True ((drawings state) !! (selectedDrawing state)), dots ]
+                                    --pictures [ drawVector 0 True (currentDrawing state), dots ]
                         else
                             Blank
 

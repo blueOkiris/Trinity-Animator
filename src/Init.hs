@@ -9,7 +9,8 @@ import GUI  ( Element(..), DynamicElement(..)
 import GUIObjects   ( defaultElementEventHandler, defaultElementUpdate
                     , drawPaneHandler
                     , updateDrawIconFunc, drawIconHandler
-                    , updateMoveIconFunc, moveIconHandler )
+                    , updateMoveIconFunc, moveIconHandler 
+                    , updateEditIconFunc, editIconHandler)
 import State(AppState(..), AppVector(..), AppWindow(..), newDrawing, isMakingNewDrawing, moveDrawing)
 
 startState :: AppState
@@ -27,7 +28,8 @@ startState =
                                         , bottomPanel
                                         , topPanel
                                         , drawIconElem
-                                        , moveIconElem ] 
+                                        , moveIconElem
+                                        , editIconElem ] 
                 , drawings =            []
                 , currentDrawing =      AppVector   { pointList = []
                                                     , smoothVersion = [] 
@@ -37,6 +39,8 @@ startState =
                 , drawIconSelected =    drawIconSelectedPic
                 , moveIcon =            moveIconPic
                 , moveIconSelected =    moveIconSelectedPic 
+                , editIcon =            editIconPic
+                , editIconSelected =    editIconSelectedPic
                 , selectedDrawing =     0 
                 , clickedDownPoint =    (0, 0) }
     where
@@ -56,6 +60,8 @@ startState =
         drawIconSelectedPic =   id $! pngToPicture "images/iconset.png" (512, 0)    (512, 512) (32, 32)
         moveIconPic =           id $! pngToPicture "images/iconset.png" (0, 512)    (512, 512) (32, 32)
         moveIconSelectedPic =   id $! pngToPicture "images/iconset.png" (512, 512)  (512, 512) (32, 32)
+        editIconPic =           id $! pngToPicture "images/iconset.png" (0, 1024)   (512, 512) (32, 32)
+        editIconSelectedPic =   id $! pngToPicture "images/iconset.png" (512, 1024) (512, 512) (32, 32)
 
         windowContainer =   
             DynamicElement  { elemCore = Element    { borderWidth =     0
@@ -156,4 +162,15 @@ startState =
                                                     , parent =          elemCore leftPanel }
                             , updateElem =      updateMoveIconFunc
                             , keyEventElem =    moveIconHandler }
+        editIconElem =
+            DynamicElement  { elemCore = Element    { borderWidth =     3
+                                                    , borderColor =     clearColor
+                                                    , backColor =       clearColor
+                                                    , backImage =       editIconPic
+                                                    , horAlignment =    alignLeft
+                                                    , vertAlignment =   alignTop
+                                                    , offset =          ((15 + 32 + 15 + 32 + 15, 15), (32, 32))
+                                                    , parent =          elemCore leftPanel }
+                            , updateElem =      updateEditIconFunc
+                            , keyEventElem =    editIconHandler }
                             
