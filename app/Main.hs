@@ -87,8 +87,12 @@ render state =
                                 drawVector 0 True $ (drawings state) !! (selectedDrawing state)
                         else if drawTool state == isMakingNewDrawing then
                             (drawVector 0 Prelude.False (currentDrawing state))
-                        else if (drawTool state) == moveDrawing || (drawTool state) == isMovingDrawing
-                            || (drawTool state) == editDrawing || (drawTool state) == isEditingDrawing then
+                        else if (drawTool state) == moveDrawing || (drawTool state) == isMovingDrawing then
+                            if (selectedDrawing state) >= (length (drawings state)) then
+                                Blank
+                            else
+                                pictures [ drawVector 0 True ((drawings state) !! (selectedDrawing state)), dotsAllRed ]
+                        else if(drawTool state) == editDrawing || (drawTool state) == isEditingDrawing then
                                 if (selectedDrawing state) >= (length (drawings state)) then
                                     Blank
                                 else
