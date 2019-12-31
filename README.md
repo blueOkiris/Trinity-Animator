@@ -36,14 +36,8 @@ To build do
 
 ```stack build```
 
-To run, make sure architecture is set to 64 bit do
+To run, make sure architecture is set to 64 bit for Linux or 32 bit for Windows do
 
 ```stack exec trinity```
 
-or on Windows, make sure the architecture is set to 32 bit and do
-
-```.\run.bat```
-
-or on Linux
-
-```./run.sh```
+Note that on windows you need to copy the glut32.dll file to your System32 folder
