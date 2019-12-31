@@ -7,10 +7,10 @@ import GUI  ( Element(..), DynamicElement(..)
             , Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch
             , pngToPicture )
 import GUIObjects   ( defaultElementEventHandler, defaultElementUpdate
-                    , drawPaneHandler
                     , updateDrawIconFunc, drawIconHandler
                     , updateMoveIconFunc, moveIconHandler 
                     , updateEditIconFunc, editIconHandler)
+import DrawPaneClick(drawPaneHandler)
 import State(AppState(..), AppVector(..), AppWindow(..), newDrawing, isMakingNewDrawing, moveDrawing)
 
 startState :: AppState
