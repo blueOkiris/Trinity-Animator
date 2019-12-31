@@ -3,7 +3,7 @@ module DrawPaneClick where
 import Graphics.Gloss.Interface.Pure.Game(Event(..), SpecialKey(..), KeyState(..), Key(..), MouseButton(..))
 
 import State    ( AppWindow(..), AppVector(..), AppState(..), DrawTool
-                , chaikinOpen, vectorClosestToPoint
+                , chaikinOpen, vectorClosestToPoint, vectorPointClosestToPoint
                 , newDrawing, isMakingNewDrawing, moveDrawing, isMovingDrawing, noState, editDrawing, isEditingDrawing )
 import GUI(Element(..), DynamicElement(..))
 import DrawElement(getX1, getX2, getY1, getY2)
@@ -38,6 +38,13 @@ drawPaneHandler (EventKey (MouseButton btn) upOrDown modifier (x, y)) state elem
                             , clickedDownPoint = (x, y) }
                 else if upOrDown == Up && (drawTool state) == isMovingDrawing then
                     state   { drawTool = changeToolUp }
+                else if upOrDown == Down && (drawTool state) == editDrawing then
+                    --trace ("New Selected Drawing: " ++ (show vecSelec))
+                    state   { drawTool = changeToolDown 
+                            , drawings = editedVectors
+                            , clickedDownPoint = (x, y) }
+                else if upOrDown == Up && (drawTool state) == isEditingDrawing then
+                    state   { drawTool = changeToolUp }
                 else
                     --trace "Other!" 
                     state
@@ -47,26 +54,40 @@ drawPaneHandler (EventKey (MouseButton btn) upOrDown modifier (x, y)) state elem
         --trace ("Not in plane! (x, y) = (" ++ (show (x, y)))
         state
     where
+        -- General case code
         changeToolDown =    if drawTool state == newDrawing then
                                 isMakingNewDrawing
                             else if drawTool state == moveDrawing then
                                 isMovingDrawing
+                            else if drawTool state == editDrawing then
+                                isEditingDrawing
                             else
                                 drawTool state
         changeToolUp =      if drawTool state == isMakingNewDrawing then
                                 newDrawing
                             else if drawTool state == isMovingDrawing then
                                 moveDrawing
+                            else if drawTool state == isEditingDrawing then
+                                editDrawing
                             else
                                 drawTool state
-                            
+        
+        -- New drawing code
         currVec =   currentDrawing state
         smoothedVector = pointList $!  (chaikinOpen 5 0.25 currVec)
         smoothVec = currVec { smoothVersion = smoothedVector }
         newVectors =        --trace ("Adding AppVector with points, " ++ (show (pointList currVec)) ++ "\nSmoothing AppVector with points, " ++ (show (pointList smoothVec)))
                             ((drawings state) ++ [ smoothVec ])
         
+        -- Move drawing code
         vecSelec = vectorClosestToPoint state (x, y)--selectedDrawing state
+
+        -- Edit drawing code
+        selectedVec = (drawings state) !! (selectedDrawing state)
+        selPoint = vectorPointClosestToPoint state (x, y)
+        newVec = selectedVec { selectedPoint = selPoint }
+        editedVectors = (fst $ splitAt (selectedDrawing state) (drawings state))
+                            ++ [ newVec ] ++ (snd $ splitAt ((selectedDrawing state) + 1) (drawings state))
 drawPaneHandler (EventMotion (x, y)) state elem index =
     if x >= fromIntegral (getX1 (elemCore elem) state) && x <= fromIntegral (getX2 (elemCore elem) state) 
         && y >= fromIntegral (getY1 (elemCore elem) state) && y <= fromIntegral (getY2 (elemCore elem) state) then
@@ -76,7 +97,10 @@ drawPaneHandler (EventMotion (x, y)) state elem index =
                 else
                     state
             else if drawTool state == isMovingDrawing then
-                state   { drawings =            updatedDrawings
+                state   { drawings =            movedDrawings
+                        , clickedDownPoint =    (x, y) }
+            else if drawTool state == isEditingDrawing then
+                state   { drawings =            editedDrawings
                         , clickedDownPoint =    (x, y) }
             else
                 --trace ("(x, y) = (" ++ (show x) ++ ", " ++ (show y) ++ ")")
@@ -84,13 +108,15 @@ drawPaneHandler (EventMotion (x, y)) state elem index =
     else
         state
     where
+        -- New Drawing code
         currVec = currentDrawing state
         newPointList = (pointList currVec) ++ [ (x, y) ]
         vectorWithPoint =   if Prelude.elem (x, y) (pointList currVec) == True then
                                 currVec
                             else
                                 (currVec { pointList = newPointList })
-                                
+                        
+        -- Moved Drawing code
         oldPosition =   --trace ("Old Click: " ++ (show $ clickedDownPoint state))
                         (clickedDownPoint state)
         currentSel = if (selectedDrawing state) >= (length (drawings state)) then
@@ -101,12 +127,29 @@ drawPaneHandler (EventMotion (x, y)) state elem index =
         xMotion = x - (fst oldPosition)
         yMotion =   --trace ("Moved Pos X: " ++ (show xMotion))
                     y - (snd oldPosition)
-        updatedSelPoints = map (\(px, py) -> (px + xMotion, py + yMotion)) (pointList currentSel)
-        updatedSel = currentSel { pointList = updatedSelPoints }
-        updatedSelSmooth = updatedSel { smoothVersion = pointList $! (chaikinOpen 5 0.25 updatedSel) }
-        updatedDrawings = (fst $ splitAt (selectedDrawing state) (drawings state)) 
-                            ++ [ updatedSelSmooth ] ++
+        movedSelPoints = map (\(px, py) -> (px + xMotion, py + yMotion)) (pointList currentSel)
+        movedSel = currentSel { pointList = movedSelPoints }
+        movedSelSmooth = movedSel { smoothVersion = pointList $! (chaikinOpen 5 0.25 movedSel) }
+        movedDrawings = (fst $ splitAt (selectedDrawing state) (drawings state)) 
+                            ++ [ movedSelSmooth ] ++
                                 (snd $ splitAt ((selectedDrawing state) + 1) (drawings state))
+
+        -- Edit drawing code
+        -- oldPosition from move above
+        -- currentSel from move above
+        -- xMotion & yMotion from above
+        -- Now here's the distance
+        currentSelPoint = selectedPoint currentSel
+        points = pointList currentSel
+        currPoint = (pointList currentSel) !! currentSelPoint
+        editedSelPoints =   (fst $ splitAt currentSelPoint points)
+                                ++ [ ((fst currPoint) + xMotion, (snd currPoint) + yMotion) ]
+                                    ++ (snd $ splitAt (currentSelPoint + 1) points)
+        editedSel = currentSel { pointList = editedSelPoints }
+        editedSelSmooth = editedSel { smoothVersion = pointList $! (chaikinOpen 5 0.25 movedSel) }
+        editedDrawings =    (fst $ splitAt (selectedDrawing state) (drawings state)) 
+                                ++ [ editedSelSmooth ] ++
+                                    (snd $ splitAt ((selectedDrawing state) + 1) (drawings state))
 drawPaneHandler (EventKey (SpecialKey KeyEsc) Up _ _) state elem index =
     state { drawTool = noState }
 drawPaneHandler _ state elem index =

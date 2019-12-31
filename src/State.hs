@@ -130,3 +130,12 @@ vectorClosestToPoint state comparePoint =
         minDistances =  map minimum
                             (filter (not . null) vecDistances)
         minDistVector = maybe 0 id $ elemIndex (minimum minDistances) minDistances
+
+vectorPointClosestToPoint :: AppState -> (Float, Float) -> Int
+vectorPointClosestToPoint state comparePoint =
+    --trace (show minDistPoint)
+    minDistPoint
+    where
+        currVec = (drawings state) !! (selectedDrawing state)
+        minDistances = map (pointDistance comparePoint) (pointList currVec)
+        minDistPoint = maybe 0 id $ elemIndex (minimum minDistances) minDistances

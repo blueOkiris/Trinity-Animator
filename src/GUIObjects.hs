@@ -56,6 +56,49 @@ editIconHandler (EventKey (Char 'e') Up _ _) state elem index =
         state { drawTool = editDrawing }
     else
         state
+editIconHandler (EventKey (SpecialKey KeyLeft) Up _ _) state elem index =
+    if drawTool state == editDrawing then
+        state { drawings = editedDrawings  }
+    else
+        state
+    where
+        currDrawing = (drawings state) !! (selectedDrawing state)
+        newSelPoint =   if (selectedPoint currDrawing ) > 1 then
+                            (selectedPoint currDrawing) - 1
+                        else
+                            (length (pointList currDrawing)) - 1
+        editedDrawing = currDrawing { selectedPoint = newSelPoint }
+        editedDrawings =    (fst $ splitAt (selectedDrawing state) (drawings state))
+                                ++ [ editedDrawing ] ++ (snd $ splitAt ((selectedDrawing state) + 1) (drawings state))
+editIconHandler (EventKey (SpecialKey KeyRight) Up _ _) state elem index =
+    if drawTool state == editDrawing then
+        state { drawings = editedDrawings  }
+    else
+        state
+    where
+        currDrawing = (drawings state) !! (selectedDrawing state)
+        newSelPoint =   if (selectedPoint currDrawing ) < (length $ pointList currDrawing) - 1 then
+                            (selectedPoint currDrawing) + 1
+                        else
+                            0
+        editedDrawing = currDrawing { selectedPoint = newSelPoint }
+        editedDrawings =    (fst $ splitAt (selectedDrawing state) (drawings state))
+                                ++ [ editedDrawing ] ++ (snd $ splitAt ((selectedDrawing state) + 1) (drawings state))
+editIconHandler (EventKey (SpecialKey KeyDelete) Up _ _) state elem index =
+    if drawTool state == editDrawing then
+        state   { drawings = drawingsWEditedCurr }
+    else
+        state
+    where
+        currDrawing = (drawings state) !! (selectedDrawing state)
+        points = pointList currDrawing
+        selPointInd = selectedPoint currDrawing
+        editedPoints =  (fst $ splitAt selPointInd points) ++ (snd $ splitAt (selPointInd + 1) points)
+        editedSel = currDrawing { pointList = editedPoints }
+        editedSelectedDrawing = editedSel { smoothVersion = pointList $! (chaikinOpen 5 0.25 editedSel) }
+        drawingsWEditedCurr =   (fst (splitAt (selectedDrawing state) (drawings state)))
+                                    ++ [ editedSelectedDrawing ]
+                                        ++ (snd (splitAt ((selectedDrawing state) + 1) (drawings state)))
 editIconHandler _ state elem index =
     state
 
