@@ -4,7 +4,7 @@ import Graphics.Gloss   ( Display(..)
                         , Picture(..), pictures, translate, circleSolid, rectangleSolid, line
                         , color, white, black, red, blue, green, yellow, magenta )
 import Graphics.Gloss.Data.ViewPort
-import Graphics.Gloss.Interface.Pure.Game(play)
+import Graphics.Gloss.Interface.IO.Game(playIO)
 import Debug.Trace
 
 import State    ( AppState(..), AppVector(..), AppWindow(..), DrawTool, chaikinOpen
@@ -44,9 +44,9 @@ drawElements state =
     pictures (map (drawElement state) (map (elemCore) (elements state)))
 
 -- Draw everything in the window
-render :: AppState -> Picture
+render :: AppState -> IO Picture
 render state =
-    applyViewPortToPicture
+    return $! applyViewPortToPicture
         (viewPortInit   { viewPortTranslate = (-winWidth / 2, winHeight / 2) })
         (pictures   [ Blank
                     --, translate 0 0 (color red $ circleSolid 100) ])
@@ -115,9 +115,9 @@ updateAll index seconds state =
        -- newNewState = newState { elements = newElements }
 
 -- Update everything based on new state
-update :: Float -> AppState -> AppState
+update :: Float -> AppState -> (IO AppState)
 update seconds state =
-    fixedState
+    return fixedState
     where
         updatedState =  --trace 
                     --    ("Num Drawings: " ++ (show (length $ drawings state)) 
@@ -146,7 +146,7 @@ main :: IO ()
 main =
     do
         hSetBuffering stdout NoBuffering
-        play disp bg numFrames startState render handler update
+        playIO disp bg numFrames startState render handler update
     where
         disp =      display $ window startState
         bg =        bgColor $ window startState
