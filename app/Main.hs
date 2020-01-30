@@ -9,7 +9,7 @@ import Debug.Trace
 
 import State    ( AppState(..), AppVector(..), AppWindow(..), DrawTool, chaikinOpen
                 , newDrawing, isMakingNewDrawing, moveDrawing, isMovingDrawing, editDrawing, isEditingDrawing )
-import GUI(Element(..), DynamicElement(..), Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch)
+import GUI(Element(..), DynamicElement(..), Alignment, alignCenter, alignLeft, alignRight, alignTop, alignBottom, alignStretch, pngToPicture)
 import Init(startState)
 import DrawElement
 import Event(handler)
@@ -151,8 +151,20 @@ main :: IO ()
 main =
     do
         hSetBuffering stdout NoBuffering
-        playIO disp bg numFrames startState render handler update
-    where
-        disp =      display $ window startState
-        bg =        bgColor $ window startState
-        numFrames = fps     $ window startState
+
+        drawIconPic <-          pngToPicture "images/iconset.png" (0, 0)      (512, 512) (32, 32)
+        drawIconSelectedPic <-  pngToPicture "images/iconset.png" (512, 0)    (512, 512) (32, 32)
+        moveIconPic <-          pngToPicture "images/iconset.png" (0, 512)    (512, 512) (32, 32)
+        moveIconSelectedPic <-  pngToPicture "images/iconset.png" (512, 512)  (512, 512) (32, 32)
+        editIconPic <-          pngToPicture "images/iconset.png" (0, 1024)   (512, 512) (32, 32)
+        editIconSelectedPic <-  pngToPicture "images/iconset.png" (512, 1024) (512, 512) (32, 32)
+
+        let initialState =  startState
+                                drawIconPic drawIconSelectedPic
+                                moveIconPic moveIconSelectedPic
+                                editIconPic editIconSelectedPic
+        let disp =          display $ window initialState
+        let bg =            bgColor $ window initialState
+        let numFrames =     fps     $ window initialState
+
+        playIO disp bg numFrames initialState render handler update

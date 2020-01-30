@@ -46,19 +46,19 @@ imageCreator path =
 
 -- Function to load image data from a file
 -- Should only be done at start to avoid problems
-{-# NOINLINE pngToPicture #-}
-pngToPicture :: FilePath -> (Int, Int) -> (Int, Int) -> (Int, Int) -> Picture
+--{-# NOINLINE pngToPicture #-}
+pngToPicture :: FilePath -> (Int, Int) -> (Int, Int) -> (Int, Int) -> IO (Picture)
 pngToPicture fname (sx, sy) (sw, sh) (w, h) =
-    newPic
-    where
-        eitherBlock = unsafePerformIO $! readPng fname
-        dimg :: DynamicImage
-        dimg =  if (rights [eitherBlock]) == [] then
-                    ImageRGBA8 (imageCreator "doesn't matter")
-                else
-                    (rights [eitherBlock]) !! 0 --unsafePerformIO $! loadJuicyPNG fname)
-        newImage :: Image PixelRGBA8
-        newImage = fromDynamicImage dimg
-        croppedImage = scaleBilinear w h (crop sx sy sw sh newImage)
+    do
+        eitherBlock <- readPng fname
+        let dimg    | rights [eitherBlock] == [] = ImageRGBA8 (imageCreator "doesn't matter")
+                    | otherwise = (rights [eitherBlock]) !! 0
+
+        let newImage = fromDynamicImage dimg
+        let croppedImage = scaleBilinear w h (crop sx sy sw sh newImage)
         
-        newPic = fromImageRGBA8 croppedImage
+        let newPic = fromImageRGBA8 croppedImage
+
+        return newPic
+    --where
+        --eitherBlock = unsafePerformIO $! readPng fname

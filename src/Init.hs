@@ -13,8 +13,8 @@ import GUIObjects   ( defaultElementEventHandler, defaultElementUpdate
 import DrawPaneClick(drawPaneHandler)
 import State(AppState(..), AppVector(..), AppWindow(..), newDrawing, isMakingNewDrawing, moveDrawing)
 
-startState :: AppState
-startState =
+startState :: Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> AppState
+startState drawIconPic drawIconSelectedPic moveIconPic moveIconSelectedPic editIconPic editIconSelectedPic =
     AppState    { window =              AppWindow   { bgColor = white
                                                     , fps =     framesPerSecond
                                                     , display = InWindow "Trinity Animator" (winWidth, winHeight) (0, 0)
@@ -55,13 +55,6 @@ startState =
         baseMargin = 10
 
         framesPerSecond = 10000
-        
-        drawIconPic =           id $! pngToPicture "images/iconset.png" (0, 0)      (512, 512) (32, 32)
-        drawIconSelectedPic =   id $! pngToPicture "images/iconset.png" (512, 0)    (512, 512) (32, 32)
-        moveIconPic =           id $! pngToPicture "images/iconset.png" (0, 512)    (512, 512) (32, 32)
-        moveIconSelectedPic =   id $! pngToPicture "images/iconset.png" (512, 512)  (512, 512) (32, 32)
-        editIconPic =           id $! pngToPicture "images/iconset.png" (0, 1024)   (512, 512) (32, 32)
-        editIconSelectedPic =   id $! pngToPicture "images/iconset.png" (512, 1024) (512, 512) (32, 32)
 
         windowContainer =   
             DynamicElement  { elemCore = Element    { borderWidth =     0
