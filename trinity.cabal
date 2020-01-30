@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 60d5a62d48242314187180ff28ea5c6956cd472b425eac8b3df6b8abf5721bf7
+-- hash: 34d0f0b1b8fa7455deda325e16e948dfb7a78e820b91bb6591b8cb593a8cdc79
 
 name:           trinity
 version:        0.1.0.0
@@ -33,6 +33,7 @@ library
       GUI
       GUIObjects
       Init
+      Lib
       State
   other-modules:
       Paths_trinity
