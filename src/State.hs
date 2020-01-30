@@ -48,10 +48,7 @@ lerp a b f =
 chaikinCut ratio (ax, ay) (bx, by) =
     AppVector  { pointList =   [ (n1x, n1y), (n2x, n2y) ], smoothVersion = [ (n1x, n1y), (n2x, n2y) ], selectedPoint = 0 }
     where
-        actRatio =  if ratio > 0.5 then
-                        1 - ratio
-                    else
-                        ratio
+        actRatio =  if ratio > 0.5 then 1 - ratio else ratio
         n1x = lerp ax bx actRatio
         n1y = lerp ay by actRatio
         n2x = lerp bx ax actRatio
@@ -60,19 +57,11 @@ chaikin iterations ratio close shape =
     -- Use Chaikin's algorithm
     -- This allows us to store fewer (and more modifiable points),
     -- but still draw with many
-    if iterations == 0 then
-        shape
-    else
-        chaikin (iterations - 1) ratio close next
+    if iterations == 0 then shape else chaikin (iterations - 1) ratio close next
     where
-        numCorners =    if close == False then
-                            (length $ pointList shape) - 1
-                        else
-                            length $ pointList shape
-        newPoints = --trace ("Master list: " ++ (show $ pointList shape) ++ "\nNum corners: " ++ (show numCorners)) 
-                        (buildNewShape ratio 0 numCorners (pointList shape) close)
-        next = --trace ("Final Shape: " ++ (show newPoints))
-                    (AppVector   { pointList = newPoints, smoothVersion = newPoints, selectedPoint = 0 })
+        numCorners = if not close then (length $ pointList shape) - 1 else length $ pointList shape
+        newPoints = (buildNewShape ratio 0 numCorners (pointList shape) close)
+        next = (AppVector   { pointList = newPoints, smoothVersion = newPoints, selectedPoint = 0 })
 buildNewShape ratio i numCorners masterList close =
     if i < numCorners then
         updateList ++ (buildNewShape ratio (i + 1) numCorners masterList close)
@@ -84,14 +73,10 @@ buildNewShape ratio i numCorners masterList close =
 
         n = pointList (chaikinCut ratio a b)
 
-        appendList =    if close == False && i == 0 then
-                            [ a, n !! 1 ]
-                        else if close == False && i == numCorners - 1 then
-                            [ n !! 0, b ]
-                        else
-                            [ n !! 0, n !! 1 ]
-        updateList = --trace ("Cut made: " ++ (show n) ++ ", appending: " ++ (show appendList))
-                        appendList
+        appendList  | (not close) && i == 0 = [ a, n !! 1 ]
+                    | (not close) && i == numCorners - 1 = [ n !! 0, b ]
+                    | otherwise = [ n !! 0, n !! 1 ]
+        updateList = appendList
 
 -- The global state type that holds all of our application's data
 data AppState =
