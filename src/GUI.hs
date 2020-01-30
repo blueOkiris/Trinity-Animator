@@ -46,7 +46,6 @@ imageCreator path =
 
 -- Function to load image data from a file
 -- Should only be done at start to avoid problems
---{-# NOINLINE pngToPicture #-}
 pngToPicture :: FilePath -> (Int, Int) -> (Int, Int) -> (Int, Int) -> IO (Picture)
 pngToPicture fname (sx, sy) (sw, sh) (w, h) =
     do
@@ -60,5 +59,3 @@ pngToPicture fname (sx, sy) (sw, sh) (w, h) =
         let newPic = fromImageRGBA8 croppedImage
 
         return newPic
-    --where
-        --eitherBlock = unsafePerformIO $! readPng fname

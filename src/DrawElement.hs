@@ -16,8 +16,6 @@ getX1, getX2, getY1, getY2 :: Element -> AppState -> Int
 -- Draw a single element
 drawElement :: AppState -> Element -> Picture
 drawElement state element =
-    --trace ("Control:\n\t((x=" ++ (show x) ++ ", y=" ++ (show y) ++ "), (w=" ++ (show w) ++ ", h=" ++ (show h)
-    --        ++ "))\n\t((lx=" ++ (show lx) ++ ", ly=" ++ (show ly) ++ "), (rx=" ++ (show rx) ++ ", ry=" ++ (show ry) ++ "))")
     pictures    [ translate x y (color bdCol (rectangleSolid borderW borderH))  -- Border around outside
                 , translate x y (color bgCol (rectangleSolid w h))              -- Background
                 , translate x y pic ]                                           -- Background image
@@ -42,79 +40,49 @@ drawElement state element =
 
         pic = backImage element
 
-getX2 elem state =
-    if (parent elem) == GUI.False then
-        -- Base case, window, (0, 0) i.e. windowWidth
-        width $ window state
-    else
-        if (horAlignment elem) == alignCenter then
-            ((parX1 + parX2) `div` 2) + (mw `div` 2)
-        else if (horAlignment elem) == alignLeft then
-            parX1 + mx + mw
-        else if (horAlignment elem) == alignRight then
-            parX2 - mx
-        else --Stretch
-            parX2 - mw
+getX2 elem state
+    | (parent elem) == GUI.False = width $ window state
+    | (horAlignment elem) == alignCenter =  ((parX1 + parX2) `div` 2) + (mw `div` 2)
+    | (horAlignment elem) == alignLeft =    parX1 + mx + mw
+    | (horAlignment elem) == alignRight =   parX2 - mx
+    | otherwise =                           parX2 - mw                          -- Stretch
     where
         ((mx, my), (mw, mh)) = offset elem
         parX1 = getX1 (parent elem) state
         parX2 = getX2 (parent elem) state
 
 -- Get parent x2
-getY2 elem state =
-    if (parent elem) == GUI.False then
-        -- Base case, window, (0, 0) i.e. windowWidth
-        height $ window state
-    else
-        if (vertAlignment elem) == alignCenter then
-            ((parY1 + parY2) `div` 2) + (mh `div` 2)
-        else if (vertAlignment elem) == alignTop then
-            parY1 + my + mh
-        else if (vertAlignment elem) == alignBottom then
-            parY2 - my
-        else --Stretch
-            parY2 - mh
+getY2 elem state
+    | (parent elem) == GUI.False = height $ window state
+    | (vertAlignment elem) == alignCenter = ((parY1 + parY2) `div` 2) + (mh `div` 2)
+    | (vertAlignment elem) == alignTop =    parY1 + my + mh
+    | (vertAlignment elem) == alignBottom = parY2 - my
+    | otherwise =                           parY2 - mh                          -- Stretch
     where
         ((mx, my), (mw, mh)) = offset elem
         parY1 = getY1 (parent elem) state
         parY2 = getY2 (parent elem) state
 
 -- Get parent x
-getX1 elem state =
-    if (parent elem) == GUI.False then
-        -- Base case, window, (0, 0) i.e. -windowWidth / 2
-        0
-    else -- Calculate the x position based on parent x
-        if (horAlignment elem) == alignCenter then
-            ((parX1 + parX2) `div` 2) + mx - (mw `div` 2)
-        else if (horAlignment elem) == alignLeft then
-            parX1 + mx
-        else if (horAlignment elem) == alignRight then
-            parX2 - mw - mx
-        else -- Stretch
-            parX1 + mw
+getX1 elem state
+    | (parent elem) == GUI.False = 0
+    | (horAlignment elem) == alignCenter =  ((parX1 + parX2) `div` 2) + mx - (mw `div` 2)
+    | (horAlignment elem) == alignLeft =    parX1 + mx
+    | (horAlignment elem) == alignRight =   parX2 - mw - mx
+    | otherwise =                           parX1 + mw                      -- Stretch
     where
         ((mx, my), (mw, mh)) = offset elem
         parX1 = getX1 (parent elem) state
         parX2 = getX2 (parent elem) state
 
 -- Get parent y
-getY1 elem state =
-    if (parent elem) == GUI.False then
-        -- Base case, window, (0, 0) i.e. -windowHeight / 2
-        0
-    else -- Calculate the y position based on parent y
-        if (vertAlignment elem) == alignCenter then
-            ((parY1 + parY2) `div` 2) + my - (mh `div` 2)
-        else if (vertAlignment elem) == alignTop then
-            parY1 + my
-        else if (vertAlignment elem) == alignBottom then
-            parY2 - mh - my
-        else -- Stretch
-            parY1 + my
+getY1 elem state
+    | (parent elem) == GUI.False = 0
+    | (vertAlignment elem) == alignCenter = ((parY1 + parY2) `div` 2) + my - (mh `div` 2)
+    | (vertAlignment elem) == alignTop =    parY1 + my
+    | (vertAlignment elem) == alignBottom = parY2 - mh - my
+    | otherwise =                           parY1 + my                      -- Stretch
     where
         ((mx, my), (mw, mh)) = offset elem
         parY1 = getY1 (parent elem) state
         parY2 = getY2 (parent elem) state
-        --parY1 = trace ("Parent Y1: " ++ (show (getY1 (parent elem) state))) (getY1 (parent elem) state)
-        --parY2 = trace ("Parent Y2: " ++ (show (getY2 (parent elem) state))) (getY2 (parent elem) state)
