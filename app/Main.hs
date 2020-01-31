@@ -116,6 +116,7 @@ main =
     do
         hSetBuffering stdout NoBuffering
 
+        -- Do image IO at start, and load the images into our start state
         drawIconPic <-          pngToPicture "images/iconset.png" (0, 0)      (512, 512) (32, 32)
         drawIconSelectedPic <-  pngToPicture "images/iconset.png" (512, 0)    (512, 512) (32, 32)
         moveIconPic <-          pngToPicture "images/iconset.png" (0, 512)    (512, 512) (32, 32)
