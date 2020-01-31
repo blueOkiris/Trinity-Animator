@@ -5,6 +5,7 @@ import Debug.Trace
 import Data.List(elemIndex)
 
 import GUI(DynamicElement(..))
+import Lib((?), Cond(..))
 
 -- "State" of app, but not that state
 -- Like current tool stuff
@@ -57,16 +58,13 @@ chaikin iterations ratio close shape =
     -- Use Chaikin's algorithm
     -- This allows us to store fewer (and more modifiable points),
     -- but still draw with many
-    if iterations == 0 then shape else chaikin (iterations - 1) ratio close next
+    iterations == 0 ? shape :? chaikin (iterations - 1) ratio close next
     where
-        numCorners = if not close then (length $ pointList shape) - 1 else length $ pointList shape
+        numCorners = not close ? ((length $ pointList shape) - 1) :? (length $ pointList shape)
         newPoints = (buildNewShape ratio 0 numCorners (pointList shape) close)
         next = (AppVector   { pointList = newPoints, smoothVersion = newPoints, selectedPoint = 0 })
 buildNewShape ratio i numCorners masterList close =
-    if i < numCorners then
-        updateList ++ (buildNewShape ratio (i + 1) numCorners masterList close)
-    else
-        []
+    i < numCorners ? updateList ++ (buildNewShape ratio (i + 1) numCorners masterList close) :? []
     where
         a = masterList !! i
         b = masterList !! ((i + 1) `mod` (length masterList))
